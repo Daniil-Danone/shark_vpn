@@ -1,0 +1,50 @@
+[
+    {
+        "model": "tariffs.tariff",
+        "pk": 1,
+        "fields": {
+            "title": "Неделя",
+            "price": "199.00",
+            "is_vip": false,
+            "duration_value": 1,
+            "duration_type": "weeks",
+            "is_active": true
+        }
+    },
+    {
+        "model": "tariffs.tariff",
+        "pk": 2,
+        "fields": {
+            "title": "Месяц",
+            "price": "399.00",
+            "is_vip": false,
+            "duration_value": 1,
+            "duration_type": "months",
+            "is_active": true
+        }
+    },
+    {
+        "model": "tariffs.tariff",
+        "pk": 3,
+        "fields": {
+            "title": "Месяц VIP",
+            "price": "1999.00",
+            "is_vip": true,
+            "duration_value": 1,
+            "duration_type": "months",
+            "is_active": true
+        }
+    },
+    {
+        "model": "tariffs.tariff",
+        "pk": 4,
+        "fields": {
+            "title": "Год",
+            "price": "2999.00",
+            "is_vip": false,
+            "duration_value": 1,
+            "duration_type": "years",
+            "is_active": true
+        }
+    }
+]

@@ -1,3 +1,25 @@
-# Django + Aiogram + React + Nginx
+# SHARKVPN BOT
 
-Каркас проекта для бекенда на Django с админпанелью Jazzmin, ботом на aiogram и фронтендом на React. Всё обёрнуто в Docker Nginx
+Telegram bot for selling VPN configs
+
+## Stack
+Python 3.11, Django, PostgreSQL, Docker, Nginx
+
+## Packages
+django, django-jazzmin, uvicorn, daphne, psycopg2-binary, aiogram
+
+## Startup Local Development
+To run a project in Docker, you need to enter the following command
+```shell
+docker-compose -f "docker-compose.dev.yml" up --build
+```
+
+To make a migration. Locally open a terminal in the root of the project and write
+```shell
+cd backend
+python manage.py makemigrations
+```
+
+
+## Authors
+[Daniil Kolevatykh](https://github.com/Daniil-Danone)

@@ -1,7 +1,11 @@
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 # PostgreSQL
 POSTGRES_DB: str = os.environ.get("POSTGRES_DB")
@@ -12,3 +16,9 @@ POSTGRES_PASSWORD: str = os.environ.get("POSTGRES_PASSWORD")
 
 # Telegram
 BOT_TOKEN: str = os.environ.get("BOT_TOKEN")
+
+ITEMS_PER_PAGE: int = 6
+
+CONFIGS_DIR: Path = BASE_DIR / "config_files"
+
+REFERAL_BONUS: float = 100.00

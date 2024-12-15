@@ -1,38 +1,34 @@
-import sys
-import asyncio
-import logging
+from bot.handlers.general import register_handlers_general
+from bot.handlers.tariffs import register_handlers_tariffs
+from bot.handlers.confident import register_handlers_confident
+from bot.handlers.cooperation import register_handlers_cooperation
+from bot.handlers.configs import register_handlers_configs
+from bot.handlers.referals import register_handlers_referal
+from bot.handlers.balance import register_handlers_balance
+from bot.handlers.faq import register_handlers_faq
+from bot.config.sessions import dispatcher, bot
 
-from aiogram.types import Message
-from aiogram.enums import ParseMode
-from aiogram.filters import CommandStart
-from aiogram import Bot, Dispatcher, html
-from aiogram.client.default import DefaultBotProperties
-
-from config.environment import BOT_TOKEN
-
-
-dp = Dispatcher()
+from utils.logger import bot_logger
 
 
-@dp.message(CommandStart())
-async def command_start_handler(message: Message) -> None:
-    await message.answer(f"Hello, {html.bold(message.from_user.full_name)}!")
+async def main():
+    bot_logger.debug("[STARTUP] Register handlers...")
 
+    register_handlers_general(dp=dispatcher)
+    register_handlers_tariffs(dp=dispatcher)
+    register_handlers_confident(dp=dispatcher)
+    register_handlers_cooperation(dp=dispatcher)
+    register_handlers_configs(dp=dispatcher)
+    register_handlers_referal(dp=dispatcher)
+    register_handlers_balance(dp=dispatcher)
+    register_handlers_faq(dp=dispatcher)
 
-@dp.message()
-async def echo_handler(message: Message) -> None:
+    bot_logger.debug("[STARTUP] Handlers registered successfully")
+
     try:
-        await message.send_copy(chat_id=message.chat.id)
-    except TypeError:
-        await message.answer("Nice try!")
-
-
-async def main() -> None:
-    bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-
-    await dp.start_polling(bot)
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-    asyncio.run(main())
+        bot_logger.debug("[STARTUP] Starting bot...")
+        await dispatcher.start_polling(bot)
+    except Exception as e:
+        bot_logger.error(f"[STARTUP] Error during polling: {e}")
+    finally:
+        await bot.session.close()
