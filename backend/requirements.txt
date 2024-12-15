@@ -1,0 +1,7 @@
+django==5.1.2
+django-jazzmin==3.0.1
+python-dotenv==1.0.1
+uvicorn==0.32.0
+daphne==4.1.2
+psycopg2-binary==2.9.9
+aiogram==3.14.0
