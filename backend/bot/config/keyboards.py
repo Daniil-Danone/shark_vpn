@@ -69,8 +69,9 @@ def tariffs_keyboard(tariffs: List[Tariff], page: int = 0):
         pagination_buttons.append(
             InlineKeyboardButton(text=" ", callback_data="ignore")
         )
-    
-    builder.row(*pagination_buttons)
+
+    if len(tariffs) > ITEMS_PER_PAGE:
+        builder.row(*pagination_buttons)
 
     return builder.as_markup()
 
@@ -142,7 +143,8 @@ def configs_keyboard(configs: List[Config], page: int = 0):
             InlineKeyboardButton(text=" ", callback_data="ignore")
         )
     
-    builder.row(*pagination_buttons)
+    if len(configs) > ITEMS_PER_PAGE:
+        builder.row(*pagination_buttons)
 
     return builder.as_markup()
 
@@ -295,7 +297,8 @@ def themes_keyboard(themes: List[FAQTheme], page: int = 0):
             InlineKeyboardButton(text=" ", callback_data="ignore")
         )
     
-    builder.row(*pagination_buttons)
+    if len(themes) > ITEMS_PER_PAGE:
+        builder.row(*pagination_buttons)
 
     return builder.as_markup()
 
@@ -336,7 +339,8 @@ def problems_keyboard(problems: List[FAQProblem], theme_id: int, page: int = 0):
             InlineKeyboardButton(text=" ", callback_data="ignore")
         )
     
-    builder.row(*pagination_buttons)
+    if len(problems) > ITEMS_PER_PAGE:
+        builder.row(*pagination_buttons)
 
     builder.row(
         InlineKeyboardButton(text="⬅️ Назад к темам", callback_data=ProblemCallback(action="back", theme_id=theme_id, problem_id=0).pack())
