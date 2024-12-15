@@ -18,7 +18,14 @@ SECRET_KEY = "django-insecure-7&*&nvpn+t=l@6z@moe0*h_waeh)fjc--g+afkbvu^a#655&yk
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "sharkvpn.ledokol.it"
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://sharkvpn.ledokol.it",
+    "http://sharkvpn.ledokol.it"
+]
 
 
 # Application definition
