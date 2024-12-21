@@ -18,8 +18,8 @@ def generate_vpn_config() -> str:
 
         process = subprocess.Popen(['./openvpn-install.sh'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        process.stdin.write('1\n')
-        process.stdin.write(f'{client_name}\n')
+        process.stdin.write('1\n'.encode())
+        process.stdin.write(f'{client_name}\n'.encode())
         process.stdin.flush()
 
         # process = pexpect.spawn('./openvpn-install.sh')
