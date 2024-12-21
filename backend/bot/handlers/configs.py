@@ -58,14 +58,13 @@ async def process_config_callback(
                 text=messages.CONFIG_FILE_NOT_FOUND
             )
         
-        date = helpers.form_date(date=config.expiring_at.date())
-        time = config.expiring_at.strftime("%H:%M")
+        date = helpers.form_date(date=config.expiring_at)
         
         return await callback_query.message.answer_document(
             document=FSInputFile(path=config_file, filename=config.config_name),
             caption=messages.CONFIG_FILE.format(
                 config_name=config.config_name,
-                expiring_at=f"{date} {time}"
+                expiring_at=date
             )
         )
         

@@ -19,6 +19,11 @@ BOT_TOKEN: str = os.environ.get("BOT_TOKEN")
 
 ITEMS_PER_PAGE: int = 6
 
-CONFIGS_DIR: Path = BASE_DIR / "config_files"
+CONFIGS_DIR: Path = BASE_DIR / "openvpn_configs"
 
 REFERAL_BONUS: float = 100.00
+
+
+# Constants
+SERVER_ROOT: str = "/root"
+CONFIGS_ROOT: str = "/root/vpn_bot/openvpn_configs"

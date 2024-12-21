@@ -26,7 +26,7 @@ class ConfigService:
     
     @staticmethod
     @sync_to_async
-    def update_config(config_id: int, status: str) -> Config:
+    def update_config(config_id: int, status: str, config_name: str) -> Config:
         config = Config.objects.get(id=config_id)
         if not config:
             return
@@ -48,8 +48,8 @@ class ConfigService:
             
             config.status = "done"
             config.payed_at = now
-            config.config_name = "test.config"
-            config.expiring_at = expiring_at
+            config.config_name = config_name
+            config.expiring_at = expiring_at.date()
             
         elif status == "cancel":
             config.status = "cancel"

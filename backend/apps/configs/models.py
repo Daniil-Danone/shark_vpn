@@ -37,7 +37,7 @@ class Config(models.Model):
         verbose_name="Дата отмены операции", blank=True, null=True
     )
 
-    expiring_at = models.DateTimeField(
+    expiring_at = models.DateField(
         verbose_name="Дата окончания тарифа", blank=True, null=True
     )
 

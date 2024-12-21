@@ -30,3 +30,4 @@ def setup_logger(
 
 
 bot_logger = setup_logger("[BOT]")
+vpn_logger = setup_logger("[VPN]")

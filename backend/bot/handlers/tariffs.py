@@ -1,7 +1,7 @@
 from aiogram import Dispatcher
 
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, FSInputFile
 
 from apps.users.service import UserService
 from apps.tariffs.service import TariffService
@@ -12,7 +12,9 @@ from bot.config import keyboards
 from bot.config.states import *
 from bot.config.callbacks import *
 
-from utils import helpers
+from config.environment import CONFIGS_DIR
+
+from utils import helpers, openvpn
 
 
 async def process_tariff_message(
@@ -53,12 +55,22 @@ async def process_tariff_callback(
             user=user, tariff=tariff
         )
 
+        if user.balance >= tariff.price:
+            return await callback_query.message.edit_text(
+                text=messages.TARIFF_PAYMENT_BALANCE.format(
+                    title=tariff.title, price=tariff.price
+                ),
+                reply_markup=keyboards.tariff_payment_keyboard(
+                    config_id=config.id, url="https://example.org/", is_balance=True
+                )
+            )
+
         return await callback_query.message.edit_text(
             text=messages.TARIFF_PAYMENT.format(
                 title=tariff.title, price=tariff.price
             ),
             reply_markup=keyboards.tariff_payment_keyboard(
-                config_id=config.id, url="https://example.org/"
+                config_id=config.id, url="https://example.org/", is_balance=False
             )
         )
 
@@ -73,18 +85,24 @@ async def process_payment_callback(
     action = callback_data.action
     config_id = callback_data.config_id
 
+    await callback_query.message.edit_reply_markup(None)
+
     if action == "done":
+        config_name = openvpn.generate_vpn_config()
+
+        config_file = CONFIGS_DIR / config_name
+
         config = await ConfigService.update_config(
-            config_id=config_id, status="done"
+            config_id=config_id, status="done", config_name=config_name
         )
 
-        date = helpers.form_date(date=config.expiring_at.date())
-        time = config.expiring_at.strftime("%H:%M")
+        date = helpers.form_date(date=config.expiring_at)
 
-        return await callback_query.message.edit_text(
-            text=messages.TARIFF_PAYMENT_DONE.format(
-                config_name="test.config",
-                expiring_at=f"{date} {time}"
+        return await callback_query.message.answer_document(
+            document=FSInputFile(path=config_file, filename=config_name),
+            caption=messages.TARIFF_PAYMENT_DONE.format(
+                config_name=config_name,
+                expiring_at=date
             )
         )
     
