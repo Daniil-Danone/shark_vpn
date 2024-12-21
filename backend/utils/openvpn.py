@@ -18,8 +18,10 @@ def generate_vpn_config() -> str:
         config_path = os.path.join(CONFIGS_ROOT, f"{config_name}.ovpn")
 
         command = (
-            f"./easyrsa build-client-full {random_name} nopass && "
-            f"cp /etc/openvpn/client/{config_name} {config_path}"
+            f"docker exec openvpn-server "
+            f"easyrsa build-client-full {random_name} nopass && "
+            f"docker exec openvpn-server "
+            f"ovpn_getclient {random_name} > {config_path}"
         )
         
         run(command, shell=True, check=True)

@@ -73,7 +73,14 @@ services:
     container_name: openvpn-server
     volumes:
       - openvpn_data:/etc/openvpn
+      - ./openvpn_configs:/etc/openvpn/client_configs
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "1194:1194/udp"
+    command: "ovpn_run"
 
+    
 networks:
   vpn_network:
 
