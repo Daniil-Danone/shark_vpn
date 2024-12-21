@@ -1,34 +1,36 @@
-import os
+import pexpect
 import secrets
-from subprocess import run
+import subprocess
 
 from utils.logger import vpn_logger
 
 from config.environment import SERVER_ROOT, CONFIGS_ROOT
 
 
-def generate_random_name() -> str:
+def generate_random_client_name():
     return secrets.token_hex(nbytes=8)
 
 
 def generate_vpn_config() -> str:
     try:
-        random_name = f"shark_{generate_random_name()}"
-        config_name = f"{random_name}.ovpn"
-        config_path = os.path.join(CONFIGS_ROOT, f"{config_name}.ovpn")
+        client_name = f"shark_{generate_random_client_name()}"
+        config_file = f"{client_name}.ovpn"
 
-        command = (
-            f"docker exec openvpn-server "
-            f"easyrsa build-client-full {random_name} nopass && "
-            f"docker exec openvpn-server "
-            f"ovpn_getclient {random_name} > {config_path}"
-        )
+        process = pexpect.spawn('sudo ./openvpn-install.sh')
+        process.expect("Select an option:")
+        process.sendline('1')
+        process.expect("Provide a name for the client:")
+        process.sendline(client_name)
+        process.expect(pexpect.EOF)
         
-        run(command, shell=True, check=True)
+        vpn_logger.debug(f"Конфигурация {config_file} успешно создана.")
 
-        vpn_logger.debug(f"Конфигурация {config_name} успешно создана.")
+        # command = f"sudo mv {SERVER_ROOT}{config_file} {CONFIGS_ROOT}"
+        # subprocess.run(command, shell=True, check=True)
 
-        return config_name
+        # vpn_logger.debug(f"Конфигурация {client_name}.ovpn успешно перемещена.")
+
+        return config_file
     
     except Exception as e:
         vpn_logger.error(f"Ошибка генерации: {e}")

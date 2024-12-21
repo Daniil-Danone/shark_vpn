@@ -7,3 +7,4 @@ psycopg2-binary==2.9.9
 aiogram==3.14.0
 python-dateutil==2.9.0.post0
 babel==2.16.0
+pexpect==4.9.0

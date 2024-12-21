@@ -10,6 +10,8 @@ services:
       /bin/sh -c "python manage.py migrate && daphne -b 0.0.0.0 -p 8000 config.asgi:application"
     volumes:
       - backend_static:/app/static
+      - /etc/openvpn:/etc/openvpn
+      - ./openvpn-install.sh:/app/openvpn-install.sh
       - ./openvpn_configs:/app/openvpn_configs
     ports:
       - "8000:8000"
@@ -30,6 +32,8 @@ services:
       /bin/sh -c "python manage.py runbot"
     volumes:
       - ./openvpn_configs:/app/openvpn_configs
+      - ./openvpn-install.sh:/app/openvpn-install.sh
+      - /etc/openvpn:/etc/openvpn
     env_file:
       - ./.env
     depends_on:
