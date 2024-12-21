@@ -1,35 +1,33 @@
+import os
 import secrets
-import subprocess
+from subprocess import run
 
 from utils.logger import vpn_logger
 
 from config.environment import SERVER_ROOT, CONFIGS_ROOT
 
 
-def generate_random_client_name():
-    return secrets.token_hex(nbytes=6)
+def generate_random_name() -> str:
+    return secrets.token_hex(nbytes=8)
 
 
 def generate_vpn_config() -> str:
     try:
-        client_name = generate_random_client_name()
+        random_name = f"shark_{generate_random_name()}"
+        config_name = f"{random_name}.ovpn"
+        config_path = os.path.join(CONFIGS_ROOT, f"{config_name}.ovpn")
+
+        command = (
+            f"./easyrsa build-client-full {random_name} nopass && "
+            f"cp /etc/openvpn/client/{config_name} {config_path}"
+        )
         
-        command = f"sudo ./openvpn-install.sh <<< \"add\" && echo {client_name}"
-        subprocess.run(command, shell=True, check=True)
+        run(command, shell=True, check=True)
 
-        config_file = f"{client_name}.ovpn"
+        vpn_logger.debug(f"Конфигурация {config_name} успешно создана.")
 
-        vpn_logger.debug(f"Конфигурация {config_file} успешно создана.")
-
-
-        command = f"sudo mv {SERVER_ROOT}{config_file} {CONFIGS_ROOT}"
-        subprocess.run(command, shell=True, check=True)
-
-        vpn_logger.debug(f"Конфигурация {client_name}.ovpn успешно перемещена.")
-        return config_file
+        return config_name
     
     except Exception as e:
         vpn_logger.error(f"Ошибка генерации: {e}")
         return None
-
-
