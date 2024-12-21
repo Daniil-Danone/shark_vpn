@@ -29,7 +29,7 @@ services:
     command: >
       /bin/sh -c "python manage.py runbot"
     env_file:
-      - ./.env
+      - ./.env.prod
     volumes:
       - ./openvpn_configs:/app/openvpn_configs
     depends_on:
