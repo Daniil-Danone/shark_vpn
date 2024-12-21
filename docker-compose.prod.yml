@@ -68,8 +68,15 @@ services:
     networks:
       - vpn_network
 
+  openvpn:
+    image: kylemanna/openvpn
+    container_name: openvpn-server
+    volumes:
+      - openvpn_data:/etc/openvpn
+
 networks:
   vpn_network:
 
 volumes:
   backend_static:
+  openvpn_data:
