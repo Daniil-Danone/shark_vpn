@@ -3,3 +3,4 @@ postgres_data/
 .venv/
 *.config
 *.ovpn
+openvpn/

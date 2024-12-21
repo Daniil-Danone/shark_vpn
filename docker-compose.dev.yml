@@ -80,7 +80,9 @@ services:
     cap_add:
       - NET_ADMIN
     restart: always
-    command: "/etc/openvpn/start.sh"
+    command: /bin/bash -c "while :; do sleep 1000; done"
+    networks:
+      - vpn_network
 
 networks:
   vpn_network:
