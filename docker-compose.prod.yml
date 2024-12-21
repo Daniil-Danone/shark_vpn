@@ -11,6 +11,8 @@ services:
     volumes:
       - backend_static:/app/static
       - ./openvpn_configs:/app/openvpn_configs
+      - ./openvpn-install.sh:/app/openvpn-install.sh
+      - /etc/openvpn:/etc/openvpn
     ports:
       - "8000:8000"
     env_file:
@@ -32,6 +34,8 @@ services:
       - ./.env.prod
     volumes:
       - ./openvpn_configs:/app/openvpn_configs
+      - ./openvpn-install.sh:/app/openvpn-install.sh
+      - /etc/openvpn:/etc/openvpn
     depends_on:
       db:
         condition: service_healthy
