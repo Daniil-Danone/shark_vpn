@@ -16,7 +16,7 @@ def generate_vpn_config() -> str:
         client_name = f"shark_{generate_random_client_name()}"
         config_file = f"{client_name}.ovpn"
 
-        process = subprocess.Popen(['sudo', './openvpn-install.sh'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(['./openvpn-install.sh'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         process.stdin.write('1\n')
         process.stdin.write(f'{client_name}\n')
