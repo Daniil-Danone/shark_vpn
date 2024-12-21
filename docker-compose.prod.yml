@@ -74,4 +74,3 @@ networks:
 
 volumes:
   backend_static:
-  openvpn_data:
