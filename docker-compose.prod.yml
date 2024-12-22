@@ -8,6 +8,8 @@ services:
     container_name: backend
     command: >
       /bin/sh -c "python manage.py migrate && daphne -b 0.0.0.0 -p 8000 config.asgi:application"
+    devices:
+      - /dev/net/tun:/dev/net/tun
     volumes:
       - backend_static:/app/static
       - ./openvpn_configs:/app/openvpn_configs
@@ -32,6 +34,8 @@ services:
       /bin/sh -c "python manage.py runbot"
     env_file:
       - ./.env.prod
+    devices:
+      - /dev/net/tun:/dev/net/tun
     volumes:
       - ./openvpn_configs:/app/openvpn_configs
       - ./openvpn-install.sh:/app/openvpn-install.sh
