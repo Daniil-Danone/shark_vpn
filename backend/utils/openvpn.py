@@ -1,10 +1,7 @@
 import pexpect
 import secrets
-import subprocess
 
 from utils.logger import vpn_logger
-
-from config.environment import SERVER_ROOT, CONFIGS_ROOT
 
 
 def generate_random_client_name():
@@ -21,13 +18,11 @@ def generate_vpn_config() -> str:
         process.sendline('1')
         process.expect('Provide a name for the client:')
         process.sendline(client_name)
+
+        process.expect(pexpect.EOF)
+        process.close()
         
         vpn_logger.debug(f"Конфигурация {config_file} успешно создана.")
-
-        # command = f"sudo mv {SERVER_ROOT}{config_file} {CONFIGS_ROOT}"
-        # subprocess.run(command, shell=True, check=True)
-
-        # vpn_logger.debug(f"Конфигурация {client_name}.ovpn успешно перемещена.")
 
         return config_file
     
