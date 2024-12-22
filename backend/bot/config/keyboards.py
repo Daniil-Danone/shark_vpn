@@ -117,7 +117,7 @@ def configs_keyboard(configs: List[Config], page: int = 0):
     page_configs = configs[start_idx:end_idx]
 
     for config in page_configs:
-        if config.expiring_at < now:
+        if config.expiring_at < now.date():
             continue
         
         builder.row(
