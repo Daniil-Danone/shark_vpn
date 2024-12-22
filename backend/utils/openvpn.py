@@ -21,11 +21,6 @@ def generate_vpn_config() -> str:
         process.stdin.write('1\n'.encode())
         process.stdin.write(f'{client_name}\n'.encode())
         process.stdin.flush()
-
-        # process = pexpect.spawn('./openvpn-install.sh')
-        # process.sendline('1')
-        # process.sendline(client_name)
-        # process.expect(pexpect.EOF)
         
         vpn_logger.debug(f"Конфигурация {config_file} успешно создана.")
 
