@@ -16,11 +16,11 @@ def generate_vpn_config() -> str:
         client_name = f"shark_{generate_random_client_name()}"
         config_file = f"{client_name}.ovpn"
 
-        process = subprocess.Popen(['./openvpn-install.sh'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-        process.stdin.write('1\n'.encode())
-        process.stdin.write(f'{client_name}\n'.encode())
-        process.stdin.flush()
+        process = pexpect.spawn('./openvpn-install.sh')
+        process.expect('Select an option:')
+        process.sendline('1')
+        process.expect('Provide a name for the client:')
+        process.sendline(client_name)
         
         vpn_logger.debug(f"Конфигурация {config_file} успешно создана.")
 
