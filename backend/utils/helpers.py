@@ -19,7 +19,7 @@ def create_config_message(configs: List[Config]) -> str:
     configs_str = []
 
     for config in configs:
-        date = form_date(date=config.expiring_at.date())
+        date = form_date(date=config.expiring_at)
         time = config.expiring_at.strftime("%H:%M")
 
         configs_str.append(f"Конфиг: {config.config_name}\nАктивен до: {date} {time}")
