@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     "apps.referals",
     "apps.operations",
     "apps.faq",
-    "apps.monitoring",
 ]
 
 MIDDLEWARE = [
