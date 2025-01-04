@@ -26,12 +26,12 @@ class ConfigService:
     
     @staticmethod
     @sync_to_async
-    def update_config(config_id: int, status: str, config_name: str) -> Config:
+    def update_config(config_id: int, payment_status: str, config_name: str) -> Config:
         config = Config.objects.get(id=config_id)
         if not config:
             return
         
-        if status == "done":
+        if payment_status in ["done", "balance"]:
             now = timezone.now()
 
             duration_type = config.tariff.duration_type
@@ -46,13 +46,14 @@ class ConfigService:
             elif duration_type == "years":
                 expiring_at = now + relativedelta(years=duration_value)
             
-            config.status = "done"
+            config.status = "enable"
+            config.payment_status = payment_status
             config.payed_at = now
             config.config_name = config_name
             config.expiring_at = expiring_at.date()
             
-        elif status == "cancel":
-            config.status = "cancel"
+        elif payment_status == "cancel":
+            config.payment_status = "cancel"
 
         config.save()
 
@@ -64,3 +65,15 @@ class ConfigService:
         configs = Config.objects.filter(user__user_id=user_id, config_name__isnull=False).order_by("-payed_at")
         return list(configs)
     
+    @staticmethod
+    @sync_to_async
+    def get_overdue_configs() -> List[Config]:
+        today = timezone.now().date()
+        configs = Config.objects.prefetch_related("user").filter(status="enable", expiring_at__lt=today)
+        return list(configs)
+    
+    @staticmethod
+    @sync_to_async
+    def set_disable_config(config: Config):
+        config.status = "disable"
+        config.save()

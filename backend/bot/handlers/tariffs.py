@@ -90,16 +90,40 @@ async def process_payment_callback(
     if action == "done":
         config_name = openvpn.generate_vpn_config()
 
-        config_file = CONFIGS_DIR / config_name
+        config_filename = f"{config_name}.ovpn"
+        config_file = CONFIGS_DIR / f"{config_filename}"
 
         config = await ConfigService.update_config(
-            config_id=config_id, status="done", config_name=config_name
+            config_id=config_id, payment_status="done", config_name=config_name
         )
 
         date = helpers.form_date(date=config.expiring_at)
 
         return await callback_query.message.answer_document(
-            document=FSInputFile(path=config_file, filename=config_name),
+            document=FSInputFile(path=config_file, filename=config_filename),
+            caption=messages.TARIFF_PAYMENT_DONE.format(
+                config_name=config_name,
+                expiring_at=date
+            )
+        )
+    
+    elif action == "balance":
+        user = await UserService.get_user(user_id=user_id)
+        config_name = openvpn.generate_vpn_config()
+
+        config_filename = f"{config_name}.ovpn"
+        config_file = CONFIGS_DIR / f"{config_filename}"
+
+        config = await ConfigService.update_config(
+            config_id=config_id, payment_status="balance", config_name=config_name
+        )
+
+        await UserService.writeoff_balance(user=user, amount=config.tariff.price)
+
+        date = helpers.form_date(date=config.expiring_at)
+
+        return await callback_query.message.answer_document(
+            document=FSInputFile(path=config_file, filename=config_filename),
             caption=messages.TARIFF_PAYMENT_DONE.format(
                 config_name=config_name,
                 expiring_at=date
@@ -108,7 +132,7 @@ async def process_payment_callback(
     
     elif action == "cancel":
         await ConfigService.update_config(
-            config_id=config_id, status="cancel"
+            config_id=config_id, payment_status="cancel"
         )
 
         return await callback_query.message.edit_text(

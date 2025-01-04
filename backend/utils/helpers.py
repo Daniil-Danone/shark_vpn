@@ -20,9 +20,8 @@ def create_config_message(configs: List[Config]) -> str:
 
     for config in configs:
         date = form_date(date=config.expiring_at)
-        time = config.expiring_at.strftime("%H:%M")
 
-        configs_str.append(f"Конфиг: {config.config_name}\nАктивен до: {date} {time}")
+        configs_str.append(f"Конфиг: {config.config_name}.ovpn\nАктивен до: {date}")
 
     if len(configs_str) == 0:
         configs_str.append("У вас ещё нет конфигов")

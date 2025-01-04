@@ -3,10 +3,16 @@ from apps.users.models import User
 from apps.tariffs.models import Tariff
 
 class Config(models.Model):
-    STATUS_CHOICES = [
+    PAYMENT_STATUS_CHOICES = [
         ("done", "✅ Оплачено"),
+        ("balance", "💰 Списано с баланса"),
         ("wait", "🕒 Ожидает оплаты"),
         ("cancel", "❌ Отклонён"),
+    ]
+
+    STATUS_CHOICES = [
+        ("enable", "✅ Активен"),
+        ("disable", "❌ Неактивен"),
     ]
 
     id = models.AutoField(
@@ -21,8 +27,12 @@ class Config(models.Model):
         Tariff, verbose_name="Тариф", on_delete=models.SET_NULL, blank=False, null=True, related_name="configs"
     )
 
+    payment_status = models.CharField(
+        verbose_name="Статус оплаты", choices=PAYMENT_STATUS_CHOICES, default="wait", max_length=10
+    )
+
     status = models.CharField(
-        verbose_name="Статус оплаты", choices=STATUS_CHOICES, default="wait", max_length=10
+        verbose_name="Статус", choices=STATUS_CHOICES, default="disable", max_length=10
     )
 
     config_name = models.CharField(

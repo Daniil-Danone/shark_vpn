@@ -4,3 +4,5 @@ postgres_data/
 *.config
 *.ovpn
 openvpn/
+grafana-data/
+prometheus-data/

@@ -11,9 +11,9 @@ def generate_random_client_name():
 def generate_vpn_config() -> str:
     try:
         client_name = f"shark_{generate_random_client_name()}"
-        config_file = f"{client_name}.ovpn"
 
-        process = pexpect.spawn('./openvpn-install.sh')
+        process = pexpect.spawn('./openvpn-install.sh', encoding='utf-8', timeout=60)
+        
         process.expect('Select an option:')
         process.sendline('1')
         process.expect('Provide a name for the client:')
@@ -22,10 +22,47 @@ def generate_vpn_config() -> str:
         process.expect(pexpect.EOF)
         process.close()
         
-        vpn_logger.debug(f"Конфигурация {config_file} успешно создана.")
+        vpn_logger.debug(f"Конфигурация {client_name} успешно создана.")
 
-        return config_file
+        return client_name
     
     except Exception as e:
         vpn_logger.error(f"Ошибка генерации: {e}")
         return None
+    
+
+def revoke_vpn_client(client_name: str) -> bool:
+    try:
+        process = pexpect.spawn('./openvpn-install.sh', encoding='utf-8', timeout=60)
+        
+        process.expect('Select an option:')
+        process.sendline('2')
+
+        process.expect('Select the client to revoke:')
+        clients_list = process.before.splitlines()[1:]
+        vpn_logger.debug(f"Список клиентов для отзыва: {clients_list}")
+
+        client_index = None
+        for i, line in enumerate(clients_list):
+            if client_name in line:
+                client_index = i + 1
+        
+        if client_index is None:
+            vpn_logger.error(f"Клиент {client_name} не найден.")
+            process.close()
+            return False
+
+        process.sendline(str(client_index))
+        
+        process.expect('Confirm client revocation? [y/N]:')
+        process.sendline('y')
+
+        process.expect(pexpect.EOF)
+        process.close()
+
+        vpn_logger.debug(f"Клиент {client_name} успешно отозван.")
+        return True
+
+    except Exception as e:
+        vpn_logger.error(f"Ошибка отзыва клиента {client_name}: {e}")
+        return False

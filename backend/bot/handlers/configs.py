@@ -51,9 +51,10 @@ async def process_config_callback(
     elif action == "config":
         config = await ConfigService.get_config(config_id=config_id)
 
-        config_file = CONFIGS_DIR / config.config_name
+        config_filename = f"{config.config_name}.ovpn"
+        config_path = CONFIGS_DIR / config_filename
 
-        if not os.path.exists(config_file):
+        if not os.path.exists(config_path):
             return await callback_query.message.answer(
                 text=messages.CONFIG_FILE_NOT_FOUND
             )
@@ -61,9 +62,9 @@ async def process_config_callback(
         date = helpers.form_date(date=config.expiring_at)
         
         return await callback_query.message.answer_document(
-            document=FSInputFile(path=config_file, filename=config.config_name),
+            document=FSInputFile(path=config_path, filename=config_filename),
             caption=messages.CONFIG_FILE.format(
-                config_name=config.config_name,
+                config_name=config_filename,
                 expiring_at=date
             )
         )

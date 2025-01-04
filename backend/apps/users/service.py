@@ -37,3 +37,11 @@ class UserService:
         user.save()
         
         return user
+    
+    @staticmethod
+    @sync_to_async
+    def writeoff_balance(user: User, amount: float) -> User:
+        user.balance = round(user.balance - amount, 2)
+        user.save()
+
+        return user

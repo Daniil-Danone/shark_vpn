@@ -19,10 +19,13 @@ SECRET_KEY = "django-insecure-7&*&nvpn+t=l@6z@moe0*h_waeh)fjc--g+afkbvu^a#655&yk
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    "localhost",
     "sharkvpn.ledokol.it"
 ]
 
 CSRF_TRUSTED_ORIGINS = [
+    "http://localhost",
+    "http://localhost:8000",
     "https://sharkvpn.ledokol.it",
     "http://sharkvpn.ledokol.it"
 ]
@@ -44,6 +47,7 @@ INSTALLED_APPS = [
     "apps.referals",
     "apps.operations",
     "apps.faq",
+    "apps.monitoring",
 ]
 
 MIDDLEWARE = [
@@ -61,7 +65,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
