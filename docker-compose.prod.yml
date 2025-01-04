@@ -40,6 +40,7 @@ services:
       - ./openvpn_configs:/app/openvpn_configs
       - ./openvpn-install.sh:/app/openvpn-install.sh
       - /etc/openvpn:/etc/openvpn
+      - /var/log/syslog:/app/syslog
     ports:
       - "8080:8080"
     depends_on:

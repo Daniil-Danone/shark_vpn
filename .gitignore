@@ -6,3 +6,4 @@ postgres_data/
 openvpn/
 grafana-data/
 prometheus-data/
+syslog

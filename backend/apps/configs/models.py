@@ -15,6 +15,11 @@ class Config(models.Model):
         ("disable", "❌ Неактивен"),
     ]
 
+    CONNECT_STATUS_CHOICES = [
+        ("connected", "✅ Подключен"),
+        ("disconnected", "❌ Отключён"),
+    ]
+
     id = models.AutoField(
         verbose_name="ID", primary_key=True
     )
@@ -32,7 +37,11 @@ class Config(models.Model):
     )
 
     status = models.CharField(
-        verbose_name="Статус", choices=STATUS_CHOICES, default="disable", max_length=10
+        verbose_name="Статус активности", choices=STATUS_CHOICES, default="disable", max_length=10
+    )
+
+    active = models.CharField(
+        verbose_name="Статус подключения", choices=CONNECT_STATUS_CHOICES, default="disconnected", max_length=12
     )
 
     config_name = models.CharField(

@@ -1,10 +1,9 @@
 from typing import Dict
-from django.utils import timezone
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
 
-from utils import openvpn, system_core
 from utils.logger import scheduler_logger
+from utils import openvpn, system_core, configs_stat
 
 from apps.configs.service import ConfigService
 
@@ -59,6 +58,26 @@ async def update_metric():
     metric.disk_used.set(disk_stat.get("used"))
     metric.disk_available.set(disk_stat.get("available"))
     metric.disk_usage.set(disk_stat.get("usage"))
+
+    connected_clients = configs_stat.parse_openvpn_logs()
+
+    active_configs = 0
+
+    total_configs = await ConfigService.get_all()
+
+    for config in total_configs:
+        if config.status == "enable":
+            active_configs += 1
+
+        if config.config_name not in connected_clients:
+            await ConfigService.set_disconnected_config(config=config)
+        else:
+            await ConfigService.set_connected_config(config=config)
+
+    metric.configs_active.set(active_configs)
+    metric.configs_connected.set(len(connected_clients))
+    metric.configs_total.set(len(total_configs))
+    metric.configs_disconnected.set(len(total_configs) - len(connected_clients))
     
 
 async def setup_scheduler_jobs():
@@ -68,5 +87,5 @@ async def setup_scheduler_jobs():
     )
     asyncio_scheduler.add_job(
         update_metric,
-        trigger=IntervalTrigger(seconds=10, timezone=TIME_ZONE)
+        trigger=IntervalTrigger(seconds=15, timezone=TIME_ZONE)
     )

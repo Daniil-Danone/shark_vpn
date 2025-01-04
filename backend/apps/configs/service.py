@@ -26,6 +26,12 @@ class ConfigService:
     
     @staticmethod
     @sync_to_async
+    def get_all() -> List[Config]:
+        configs = Config.objects.all()
+        return list(configs)
+    
+    @staticmethod
+    @sync_to_async
     def update_config(config_id: int, payment_status: str, config_name: str) -> Config:
         config = Config.objects.get(id=config_id)
         if not config:
@@ -76,4 +82,16 @@ class ConfigService:
     @sync_to_async
     def set_disable_config(config: Config):
         config.status = "disable"
+        config.save()
+
+    @staticmethod
+    @sync_to_async
+    def set_connected_config(config: Config):
+        config.active = "connected"
+        config.save()
+
+    @staticmethod
+    @sync_to_async
+    def set_disconnected_config(config: Config):
+        config.active = "disconneted"
         config.save()
