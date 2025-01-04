@@ -93,5 +93,5 @@ class ConfigService:
     @staticmethod
     @sync_to_async
     def set_disconnected_config(config: Config):
-        config.active = "disconneted"
+        config.active = "disconnected"
         config.save()
