@@ -86,7 +86,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./grafana-data:/var/lib/grafana
+      - grafana-storage:/var/lib/grafana
     depends_on:
       - prometheus
     networks:
@@ -111,3 +111,4 @@ networks:
 
 volumes:
   backend_static:
+  grafana-storage: {}
