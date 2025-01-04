@@ -9,7 +9,7 @@ def get_current_usage() -> Dict:
         "cpu": {
             "cores": psutil.cpu_count(logical=False),
             "threads": psutil.cpu_count(logical=True),
-            "usage": sum([psutil.cpu_percent(interval=0.5, percpu=True)]),
+            "usage": sum(psutil.cpu_percent(interval=0.5, percpu=True)),
         },
         "ram": {
             "total": ram.total,
