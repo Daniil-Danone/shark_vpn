@@ -87,5 +87,5 @@ async def setup_scheduler_jobs():
     )
     asyncio_scheduler.add_job(
         update_metric,
-        trigger=IntervalTrigger(seconds=15, timezone=TIME_ZONE)
+        trigger=IntervalTrigger(seconds=30, timezone=TIME_ZONE)
     )
