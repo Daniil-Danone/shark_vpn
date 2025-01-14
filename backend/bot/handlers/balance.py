@@ -12,7 +12,7 @@ from bot.config.sessions import bot
 from apps.users.service import UserService
 from apps.operations.service import OperationService
 
-from utils import helpers
+from utils import helpers, payment
 
 
 async def process_balance_message(
@@ -183,11 +183,11 @@ async def process_cash_in_method_callback(
 
     user = await UserService.get_user(user_id=user_id)
 
-    operation = await OperationService.create_operation(
-        type="cash_in", method=method, amount=amount, user=user
-    )
-
     if method == "usdt":
+        operation = await OperationService.create_operation(
+            type="cash_in", method=method, amount=amount, user=user
+        )
+        
         return await callback_query.message.answer(
             text=messages.BALANCE_CASH_IN_USDT.format(
                 usdt_amount=1, wallet="test_wallet"
@@ -198,10 +198,25 @@ async def process_cash_in_method_callback(
         )
 
     elif method == "card":
+        try:
+            payment_id, payment_url = payment.init_payment(
+                amount=amount, description="Пополнение баланса SafeVPN",
+                client_fullname=callback_query.from_user.full_name, client_email="it@ledokol.it"
+            )
+        except RuntimeError as e:
+            return await callback_query.answer(
+                text=messages.FAILED_TO_INIT_PAYMENT,
+                show_alert=True
+            )
+        
+        operation = await OperationService.create_operation(
+            type="cash_in", method=method, amount=amount, user=user, payment_id=payment_id
+        )
+        
         return await callback_query.message.answer(
             text=messages.BALANCE_CASH_IN_CARD,
             reply_markup=keyboards.cash_in_card_keyboard(
-                operation_id=operation.id, url="https://example.org"
+                operation_id=operation.id, url=payment_url
             )
         )
 
@@ -218,16 +233,36 @@ async def process_operation_callback(
 
     user = await UserService.get_user(user_id=user_id)
 
-    operation = await OperationService.update_operation(
-        operation_id=operation_id, status=action
-    )
-
-    await callback_query.message.edit_reply_markup(None)
+    operation = await OperationService.get_operation(operation_id=operation_id)
 
     if action == "done":
-        user = await UserService.accure_balance(
-            user=user, amount=operation.amount
-        )
+        if operation.method == "card":
+            try:
+                if not payment.check_status(payment_id=operation.payment_id):
+                    return await callback_query.answer(
+                        text=messages.PAYMENT_NOT_CONFIRMED,
+                        show_alert=True
+                    )
+            except RuntimeError:
+                return await callback_query.answer(
+                    text=messages.FAILED_TO_CHECK_PAYMENT,
+                    show_alert=True
+                )
+            
+            operation = await OperationService.update_operation(
+                operation_id=operation_id, status="done"
+            )
+
+            user = await UserService.accure_balance(
+                user=user, amount=operation.amount
+            )
+
+        elif operation.method == "usdt":
+            operation = await OperationService.update_operation(
+                operation_id=operation_id, status="done"
+            )
+
+        await callback_query.message.edit_reply_markup(None)
 
         return callback_query.message.answer(
             text=messages.BALANCE_CASH_IN_SUCCESS.format(
@@ -236,9 +271,17 @@ async def process_operation_callback(
         )
     
     elif action == "cancel":
-        return callback_query.message.answer(
-            text=messages.OPERATION_CANCELLED
+        if operation.method == "card":
+            try:
+                payment.cancel_payment(payment_id=operation.payment_id)
+            except RuntimeError:
+                pass
+
+        await OperationService.update_operation(
+            operation_id=operation_id, status="cancel"
         )
+
+        return await callback_query.message.edit_reply_markup(None)
 
 
 async def process_cash_out_method_callback(

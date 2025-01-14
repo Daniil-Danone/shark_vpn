@@ -23,7 +23,20 @@ CONFIGS_DIR: Path = BASE_DIR / "openvpn_configs"
 
 REFERAL_BONUS: float = 100.00
 
-
 # Constants
 SERVER_ROOT: str = "/root"
 CONFIGS_ROOT: str = "/root/vpn_bot/openvpn_configs"
+
+# YouKassa URLS
+INIT_PAYMENT_URL: str = "https://api.yookassa.ru/v3/payments"
+CHECK_PAYMENT_STATUS_URL: str = "https://api.yookassa.ru/v3/payments/{payment_id}"
+CANCEL_PAYMENT_URL: str = "https://api.yookassa.ru/v3/payments/{payment_id}/cancel"
+
+# YouKassa Credentials
+CLIENT_ID: str = os.environ.get("YOUKASSA_CLIENT_ID")
+REDIRECT_URL: str = os.environ.get("YOUKASSA_REDIRECT_URL")
+CLIENT_SECRET: str = os.environ.get("YOUKASSA_CLIENT_SECRET")
+
+# YouKassa Statuses
+SUCCEEDED: str = "succeeded"
+CANCELED: str = "canceled"

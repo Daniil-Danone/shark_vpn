@@ -21,10 +21,10 @@ class OperationService:
     @staticmethod
     @sync_to_async
     def create_operation(
-        type: str, method: str, amount: float, user: User, wallet: Optional[str] = None
+        type: str, method: str, amount: float, user: User, payment_id: Optional[str] = None, wallet: Optional[str] = None
     ) -> Operation:
         return Operation.objects.create(
-            type=type, method=method, amount=amount, user=user, wallet=wallet
+            type=type, method=method, amount=amount, user=user, payment_id=payment_id, wallet=wallet
         )
     
     @staticmethod
