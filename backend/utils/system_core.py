@@ -26,5 +26,3 @@ def get_current_usage() -> Dict:
     }
 
     return data
-
-print(get_current_usage())

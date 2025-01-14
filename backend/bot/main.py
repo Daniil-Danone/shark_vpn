@@ -52,7 +52,6 @@ async def main():
     bot_logger.debug("[STARTUP] Starting bot...")
     try:
         await dispatcher.start_polling(bot)
-        bot_logger.debug("[STARTUP] Bot started successfully")
     except Exception as e:
         bot_logger.error(f"[STARTUP] Error during polling: {e}")
     finally:

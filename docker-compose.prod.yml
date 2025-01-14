@@ -111,5 +111,5 @@ networks:
   vpn_network:
 
 volumes:
-  backend_static:
+  backend_static: {}
   grafana-storage: {}

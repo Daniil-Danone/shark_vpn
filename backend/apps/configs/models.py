@@ -48,6 +48,10 @@ class Config(models.Model):
         verbose_name="Название конфига", blank=True, null=True
     )
 
+    payment_id = models.CharField(
+        verbose_name="ID платежа", blank=True, null=True
+    )
+
     payed_at = models.DateTimeField(
         verbose_name="Дата оплаты", blank=True, null=True
     )

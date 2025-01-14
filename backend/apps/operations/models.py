@@ -47,6 +47,10 @@ class Operation(models.Model):
         verbose_name="Сумма", blank=False, null=False
     )
 
+    payment_id = models.CharField(
+        verbose_name="ID платежа", blank=True, null=True
+    )
+
     completed_at = models.DateTimeField(
         verbose_name="Дата совершения операции", blank=True, null=True
     )

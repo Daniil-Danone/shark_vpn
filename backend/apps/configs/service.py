@@ -15,14 +15,14 @@ class ConfigService:
     @sync_to_async
     def get_config(config_id: int) -> Config:
         try:
-            return Config.objects.get(id=config_id)
+            return Config.objects.prefetch_related("tariff").get(id=config_id)
         except Config.DoesNotExist:
             return None
     
     @staticmethod
     @sync_to_async
-    def create_config(user: User, tariff: Tariff) -> Config:
-        return Config.objects.create(user=user, tariff=tariff)
+    def create_config(user: User, tariff: Tariff, payment_id: Optional[str] = None) -> Config:
+        return Config.objects.create(user=user, tariff=tariff, payment_id=payment_id)
     
     @staticmethod
     @sync_to_async
@@ -32,7 +32,7 @@ class ConfigService:
     
     @staticmethod
     @sync_to_async
-    def update_config(config_id: int, payment_status: str, config_name: str) -> Config:
+    def update_config(config_id: int, payment_status: str, config_name: Optional[str] = None) -> Config:
         config = Config.objects.get(id=config_id)
         if not config:
             return

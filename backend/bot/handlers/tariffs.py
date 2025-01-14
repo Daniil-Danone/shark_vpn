@@ -14,7 +14,7 @@ from bot.config.callbacks import *
 
 from config.environment import CONFIGS_DIR
 
-from utils import helpers, openvpn
+from utils import helpers, openvpn, payment
 
 
 async def process_tariff_message(
@@ -50,9 +50,21 @@ async def process_tariff_callback(
     elif action == "tariff":
         user = await UserService.get_user(user_id=user_id)
         tariff = await TariffService.get_tariff(tariff_id=tariff_id)
+
+        try:
+            payment_id, payment_url = payment.init_payment(
+                amount=tariff.price, description=tariff.title,
+                client_fullname=callback_query.from_user.full_name, client_email="it@ledokol.it"
+            )
+
+        except RuntimeError as e:
+            return await callback_query.answer(
+                text=messages.FAILED_TO_INIT_PAYMENT,
+                show_alert=True
+            )
         
         config = await ConfigService.create_config(
-            user=user, tariff=tariff
+            user=user, tariff=tariff, payment_id=payment_id
         )
 
         if user.balance >= tariff.price:
@@ -61,7 +73,7 @@ async def process_tariff_callback(
                     title=tariff.title, price=tariff.price
                 ),
                 reply_markup=keyboards.tariff_payment_keyboard(
-                    config_id=config.id, url="https://example.org/", is_balance=True
+                    config_id=config.id, url=payment_url, is_balance=True
                 )
             )
 
@@ -70,7 +82,7 @@ async def process_tariff_callback(
                 title=tariff.title, price=tariff.price
             ),
             reply_markup=keyboards.tariff_payment_keyboard(
-                config_id=config.id, url="https://example.org/", is_balance=False
+                config_id=config.id, url=payment_url, is_balance=False
             )
         )
 
@@ -85,42 +97,41 @@ async def process_payment_callback(
     action = callback_data.action
     config_id = callback_data.config_id
 
-    await callback_query.message.edit_reply_markup(None)
+    user = await UserService.get_user(user_id=user_id)
+    config = await ConfigService.get_config(config_id=config_id)
 
-    if action == "done":
+    if action in ["done", "balance"]:
+        if action == "done":
+            try:
+                if not payment.check_status(payment_id=config.payment_id):
+                    return await callback_query.answer(
+                        text=messages.PAYMENT_NOT_CONFIRMED,
+                        show_alert=True
+                    )
+            except RuntimeError:
+                return await callback_query.answer(
+                    text=messages.FAILED_TO_CHECK_PAYMENT,
+                    show_alert=True
+                )
+        
+        elif action == "balance":
+            if user.balance < config.tariff.price:
+                return await callback_query.answer(
+                    text=messages.FAILED_TO_PAY_BALANCE
+                )
+            
+            await UserService.writeoff_balance(user=user, amount=float(config.tariff.price))
+            
         config_name = openvpn.generate_vpn_config()
 
         config_filename = f"{config_name}.ovpn"
         config_file = CONFIGS_DIR / f"{config_filename}"
 
-        config = await ConfigService.update_config(
+        upd_config = await ConfigService.update_config(
             config_id=config_id, payment_status="done", config_name=config_name
         )
 
-        date = helpers.form_date(date=config.expiring_at)
-
-        return await callback_query.message.answer_document(
-            document=FSInputFile(path=config_file, filename=config_filename),
-            caption=messages.TARIFF_PAYMENT_DONE.format(
-                config_name=config_name,
-                expiring_at=date
-            )
-        )
-    
-    elif action == "balance":
-        user = await UserService.get_user(user_id=user_id)
-        config_name = openvpn.generate_vpn_config()
-
-        config_filename = f"{config_name}.ovpn"
-        config_file = CONFIGS_DIR / f"{config_filename}"
-
-        config = await ConfigService.update_config(
-            config_id=config_id, payment_status="balance", config_name=config_name
-        )
-
-        await UserService.writeoff_balance(user=user, amount=config.tariff.price)
-
-        date = helpers.form_date(date=config.expiring_at)
+        date = helpers.form_date(date=upd_config.expiring_at)
 
         return await callback_query.message.answer_document(
             document=FSInputFile(path=config_file, filename=config_filename),
@@ -131,13 +142,18 @@ async def process_payment_callback(
         )
     
     elif action == "cancel":
+        try:
+            payment.cancel_payment(
+                payment_id=config.payment_id
+            )
+        except RuntimeError:
+            pass
+
         await ConfigService.update_config(
             config_id=config_id, payment_status="cancel"
         )
 
-        return await callback_query.message.edit_text(
-            text=messages.TARIFF_PAYMENT_CANCELED
-        )
+        return await callback_query.message.delete()
 
 
 def register_handlers_tariffs(dp: Dispatcher):
