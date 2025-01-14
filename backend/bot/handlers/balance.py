@@ -200,7 +200,7 @@ async def process_cash_in_method_callback(
     elif method == "card":
         try:
             payment_id, payment_url = payment.init_payment(
-                amount=amount, description="Пополнение баланса SafeVPN",
+                amount=amount, description="Пополнение баланса SharkVPN",
                 client_fullname=callback_query.from_user.full_name, client_email="it@ledokol.it"
             )
         except RuntimeError as e:
