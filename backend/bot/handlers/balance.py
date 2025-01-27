@@ -189,35 +189,16 @@ async def process_cash_in_method_callback(
         )
         
         return await callback_query.message.answer(
-            text=messages.BALANCE_CASH_IN_USDT.format(
-                usdt_amount=1, wallet="test_wallet"
-            ),
-            reply_markup=keyboards.cash_in_usdt_keyboard(
-                operation_id=operation.id
-            )
+            text=messages.BALANCE_CASH_IN_USDT,
         )
 
     elif method == "card":
-        try:
-            payment_id, payment_url = payment.init_payment(
-                amount=amount, description="Пополнение баланса SharkVPN",
-                client_fullname=callback_query.from_user.full_name, client_email="it@ledokol.it"
-            )
-        except RuntimeError as e:
-            return await callback_query.answer(
-                text=messages.FAILED_TO_INIT_PAYMENT,
-                show_alert=True
-            )
-        
         operation = await OperationService.create_operation(
-            type="cash_in", method=method, amount=amount, user=user, payment_id=payment_id
+            type="cash_in", method=method, amount=amount, user=user
         )
         
         return await callback_query.message.answer(
-            text=messages.BALANCE_CASH_IN_CARD,
-            reply_markup=keyboards.cash_in_card_keyboard(
-                operation_id=operation.id, url=payment_url
-            )
+            text=messages.BALANCE_CASH_IN_CARD
         )
 
 
@@ -303,18 +284,14 @@ async def process_cash_out_method_callback(
 
     if method == "usdt":
         last_message = await callback_query.message.answer(
-            text=messages.BALANCE_CASH_OUT_USDT.format(
-                amount=amount
-            ),
+            text=messages.BALANCE_CASH_OUT_USDT,
             reply_markup=keyboards.cancel_operation_keyboard()
         )
         await state.update_data(message_id=last_message.message_id)
     
     elif method == "card":
         last_message = await callback_query.message.answer(
-            text=messages.BALANCE_CASH_OUT_CARD.format(
-                amount=amount
-            ),
+            text=messages.BALANCE_CASH_OUT_CARD,
             reply_markup=keyboards.cancel_operation_keyboard()
         )
         await state.update_data(message_id=last_message.message_id)

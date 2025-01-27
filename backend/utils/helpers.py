@@ -30,27 +30,11 @@ def create_config_message(configs: List[Config]) -> str:
     return text
 
 
-def create_referal_message(user: User, bot_username: str, referals: List[Referal]) -> str:
+def create_referal_message(user: User, bot_username: str) -> str:
     referal_link = f"https://t.me/{bot_username}?start={user.user_id}"
-
-    referals_str = []
-
-    for referal in referals:
-        date = form_date(referal.invited_at.date())
-        time = referal.invited_at.strftime("%H:%M")
-
-        referals_str.append(
-            f"• {referal.referal.full_name} - {date} {time}"
-        )
-    
-    if len(referals_str) == 0:
-        referals_str.append("• пусто")
 
     return messages.REFERAL_MESSAGE.format(
         referal_link=referal_link,
-        earned=user.earned,
-        referals_count=len(referals),
-        referals="\n".join(referals_str)
     )
 
 

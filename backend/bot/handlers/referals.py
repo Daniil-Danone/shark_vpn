@@ -20,13 +20,12 @@ async def process_referal_message(
     user_id = message.from_user.id
 
     user = await UserService.get_user(user_id=user_id)
-    referals = await ReferalService.get_referals(partner_id=user_id)
 
     bot_info = await bot.get_me()
     
     return await message.answer(
         text=helpers.create_referal_message(
-            user=user, bot_username=bot_info.username, referals=referals 
+            user=user, bot_username=bot_info.username
         )
     )
 
