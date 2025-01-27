@@ -32,7 +32,8 @@ async def process_start_message(
         if not await ReferalService.get_referal(partner_id=partner_id, referal_id=user_id):
             partner = await UserService.get_user(user_id=partner_id)
             await ReferalService.create_referal(partner=partner, referal=user)
-            await UserService.accure_referal_bonuses(partner=partner)
+            await UserService.accure_referal_bonuses(referal=user)
+            await UserService.accure_partner_bonuses(partner=partner)
     except:
         pass
 

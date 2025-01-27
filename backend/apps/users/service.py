@@ -3,7 +3,7 @@ from asgiref.sync import sync_to_async
 
 from apps.users.models import User
 
-from config.environment import REFERAL_BONUS
+from config.environment import REFERAL_BONUS, PARTNER_BONUS
 
 class UserService:
     @staticmethod
@@ -23,12 +23,19 @@ class UserService:
     
     @staticmethod
     @sync_to_async
-    def accure_referal_bonuses(partner: User) -> User:
-        partner.earned = round(partner.earned + REFERAL_BONUS, 2)
-        partner.balance = round(partner.balance + REFERAL_BONUS, 2)
-        partner.save()
+    def accure_referal_bonuses(referal: User) -> User:
+        referal.earned = round(referal.earned + REFERAL_BONUS, 2)
+        referal.balance = round(referal.balance + REFERAL_BONUS, 2)
+        referal.save()
 
-        return partner
+        return referal
+    
+    @staticmethod
+    @sync_to_async
+    def accure_partner_bonuses(partner: User) -> User:
+        partner.earned = round(partner.earned + PARTNER_BONUS, 2)
+        partner.balance = round(partner.balance + PARTNER_BONUS, 2)
+        partner.save
     
     @staticmethod
     @sync_to_async

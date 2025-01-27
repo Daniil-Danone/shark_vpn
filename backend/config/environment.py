@@ -21,7 +21,8 @@ ITEMS_PER_PAGE: int = 6
 
 CONFIGS_DIR: Path = BASE_DIR / "openvpn_configs"
 
-REFERAL_BONUS: float = 100.00
+REFERAL_BONUS: float = 80.00
+PARTNER_BONUS: float = 100.00
 
 # Constants
 SERVER_ROOT: str = "/root"
