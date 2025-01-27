@@ -33,6 +33,11 @@ class CashOutMethodCallback(CallbackData, prefix="cash_out_method"):
     method: str
 
 
+class CompleteCashOutCallback(CallbackData, prefix="complete_cash_out"):
+    action: str
+    operation_id: int
+
+
 class OperationCallback(CallbackData, prefix="cashin"):
     action: str
     operation_id: int

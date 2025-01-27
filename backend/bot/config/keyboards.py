@@ -362,3 +362,17 @@ def problem_keyboard(theme_id: int):
     )
 
     return builder.as_markup()
+
+
+def complete_cash_out_keyboard(operation_id: int):
+    builder = InlineKeyboardBuilder()
+
+    builder.add(
+        InlineKeyboardButton(text="✅ Оплачено!", callback_data=CompleteCashOutCallback(action="done", operation_id=operation_id).pack())
+    )
+
+    builder.add(
+        InlineKeyboardButton(text="❌ Отменить операцию", callback_data=CompleteCashOutCallback(action="cancel", operation_id=operation_id).pack())
+    )
+
+    return builder.as_markup()

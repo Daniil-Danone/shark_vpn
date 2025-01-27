@@ -16,6 +16,7 @@ POSTGRES_PASSWORD: str = os.environ.get("POSTGRES_PASSWORD")
 
 # Telegram
 BOT_TOKEN: str = os.environ.get("BOT_TOKEN")
+ADMIN_CHAT_ID: int = os.environ.get("ADMIN_CHAT_ID")
 
 ITEMS_PER_PAGE: int = 6
 
@@ -27,6 +28,7 @@ PARTNER_BONUS: float = 100.00
 # Constants
 SERVER_ROOT: str = "/root"
 CONFIGS_ROOT: str = "/root/vpn_bot/openvpn_configs"
+ADMIN_PANEL_LINK: str = "https://sharkvpn.ledokol.it/admin/"
 
 # YouKassa URLS
 INIT_PAYMENT_URL: str = "https://api.yookassa.ru/v3/payments"

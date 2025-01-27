@@ -7,5 +7,9 @@ class ReferalAdmin(admin.ModelAdmin):
         "partner", "referal", "invited_at",
     )
 
+    readonly_fields = (
+        "partner", "referal", "invited_at",
+    )
+
 
 admin.site.register(Referal, ReferalAdmin)

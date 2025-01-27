@@ -14,7 +14,7 @@ class OperationService:
     @sync_to_async
     def get_operation(operation_id: int) -> Operation:
         try:
-            return Operation.objects.get(id=operation_id)
+            return Operation.objects.prefetch_related("user").get(id=operation_id)
         except Operation.DoesNotExist:
             return None
         

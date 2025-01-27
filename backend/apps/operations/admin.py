@@ -16,5 +16,10 @@ class OperationAdmin(admin.ModelAdmin):
         "wallet", "user__full_name", "user__username", 
     )
 
+    readonly_fields = (
+        "type", "method", "status", "user", "wallet", "amount", 
+        "payment_id", "completed_at", "cancelled_at", "created_at"
+    )
+
 
 admin.site.register(Operation, OperationAdmin)

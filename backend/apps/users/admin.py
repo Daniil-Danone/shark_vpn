@@ -8,4 +8,9 @@ class UserAdmin(admin.ModelAdmin):
     )
 
 
+    readonly_fields = (
+        "user_id", "created_at"
+    )
+
+
 admin.site.register(User, UserAdmin)

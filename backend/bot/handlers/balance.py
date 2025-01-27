@@ -14,6 +14,8 @@ from apps.operations.service import OperationService
 
 from utils import helpers, payment
 
+from config.environment import ADMIN_CHAT_ID, ADMIN_PANEL_LINK
+
 
 async def process_balance_message(
     message: Message, state: FSMContext
@@ -48,8 +50,16 @@ async def process_balance_callback(
         await state.update_data(message_id=last_message.message_id)
 
     elif action == "cash_out":
-        await state.set_state(BalanceState.cash_out)
         await callback_query.message.edit_reply_markup(None)
+
+        user = await UserService.get_user(user_id=user_id)
+        if user.balance < 2000:
+            return await callback_query.message.answer(
+                text=messages.BALANCE_CASH_OUT_NOT_ENOUGH_BALANCE.format(balance=round(user.balance, 2))
+            )
+        
+        await state.set_state(BalanceState.cash_out)
+        
         last_message = await callback_query.message.answer(
             text=messages.BALANCE_CASH_OUT_AMOUNT,
             reply_markup=keyboards.cancel_operation_keyboard()
@@ -278,7 +288,7 @@ async def process_cash_out_method_callback(
 
     await state.update_data(method=method)
 
-    await state.set_state(BalanceState.wallet)
+    await state.set_state(BalanceState.wallet_or_card)
 
     await callback_query.message.edit_reply_markup(None)
 
@@ -302,7 +312,7 @@ async def process_cash_out_wallet_message(
     state: FSMContext
 ):
     user_id = message.from_user.id
-    wallet = message.text
+    wallet_or_card = message.text
 
     data = await state.get_data()
     amount: float = data.get("amount")
@@ -318,13 +328,84 @@ async def process_cash_out_wallet_message(
 
     user = await UserService.get_user(user_id=user_id)
 
-    await OperationService.create_operation(
-        type="cash_out", method=method, amount=amount, user=user, wallet=wallet
+    operation = await OperationService.create_operation(
+        type="cash_out", method=method, amount=amount, user=user, wallet=wallet_or_card
     )
+
+    if method == "card":
+        admin_message = messages.NEW_CASH_OUT_OPERATION_CARD.format(
+            amount=amount, card=wallet_or_card, 
+            user_info=f"{user.user_id} | {user.full_name}",
+            admin_link=f"{ADMIN_PANEL_LINK}/operations/operation/{operation.id}"
+        )
+    
+    else:
+        admin_message = messages.NEW_CASH_OUT_OPERATION_WALLET.format(
+            amount=amount, wallet=wallet_or_card, 
+            user_info=f"{user.user_id} | {user.full_name}",
+            admin_link=f"{ADMIN_PANEL_LINK}/operations/operation/{operation.id}"
+        )
+
+    try:
+        await bot.send_message(
+            chat_id=ADMIN_CHAT_ID,
+            text=admin_message,
+            reply_markup=keyboards.complete_cash_out_keyboard(operation_id=operation.id)
+        )
+    
+    except:
+        pass
 
     return await message.answer(
         text=messages.BALANCE_CASH_OUT_CREATED
     )
+
+
+async def process_complete_cash_out_callback(
+    callback_query: CallbackQuery,
+    callback_data: CompleteCashOutCallback,
+    state: FSMContext
+):
+    action = callback_data.action
+    operation_id = callback_data.operation_id
+
+    operation = await OperationService.get_operation(operation_id=operation_id)
+    if not operation:
+        return await callback_query.answer(
+            text=messages.FAILED_TO_FOUND_OPERATION, show_alert=True
+        )
+    
+    user = await UserService.get_user(user_id=operation.user.user_id)
+
+    if action == "done":
+        await OperationService.update_operation(operation_id=operation_id, status="done")
+        await UserService.writeoff_balance(user=user, amount=operation.amount)
+
+        try:
+            await bot.send_message(
+                chat_id=user.user_id, 
+                text=messages.CASH_OUT_OPERATION_DONE
+            )
+        except:
+            pass
+
+        return await callback_query.message.edit_text(
+            text=f"{callback_query.message.html_text}\n\n✅ Оплачено!"
+        )
+
+    elif action == "cancel":
+        await OperationService.update_operation(operation_id=operation_id, status="cancel")
+        try:
+            await bot.send_message(
+                chat_id=user.user_id, 
+                text=messages.CASH_OUT_OPERATION_CANCEL
+            )
+        except:
+            pass
+
+        return await callback_query.message.edit_text(
+            text=f"{callback_query.message.html_text}\n\n❌ Операция отменена"
+        )
 
 
 def register_handlers_balance(dp: Dispatcher):
@@ -361,5 +442,9 @@ def register_handlers_balance(dp: Dispatcher):
     )
 
     dp.message.register(
-        process_cash_out_wallet_message, BalanceState.wallet
+        process_cash_out_wallet_message, BalanceState.wallet_or_card
+    )
+
+    dp.callback_query.register(
+        process_complete_cash_out_callback, CompleteCashOutCallback.filter()
     )
