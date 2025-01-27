@@ -305,7 +305,7 @@ NEW_CASH_OUT_OPERATION_WALLET: str = """\
 <blockquote>Новая заявка на вывод средств</blockquote>
 
 💰 Сумма: {amount}₽
-💲 Кошелёк: {wallet}
+💲 Кошелёк USDT TRC-20: {wallet}
 
 👤 Пользователь: {user_info}
 

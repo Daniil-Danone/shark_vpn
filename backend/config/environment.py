@@ -28,7 +28,7 @@ PARTNER_BONUS: float = 100.00
 # Constants
 SERVER_ROOT: str = "/root"
 CONFIGS_ROOT: str = "/root/vpn_bot/openvpn_configs"
-ADMIN_PANEL_LINK: str = "https://sharkvpn.ledokol.it/admin/"
+ADMIN_PANEL_LINK: str = "https://sharkvpn.ledokol.it/admin"
 
 # YouKassa URLS
 INIT_PAYMENT_URL: str = "https://api.yookassa.ru/v3/payments"
