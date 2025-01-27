@@ -390,7 +390,7 @@ async def process_complete_cash_out_callback(
             pass
 
         return await callback_query.message.edit_text(
-            text=f"{callback_query.message.html_text}\n\n✅ Оплачено!"
+            text=f"{callback_query.message.html_text}\n\n✅ Оплачено!", reply_markup=None
         )
 
     elif action == "cancel":
@@ -404,7 +404,7 @@ async def process_complete_cash_out_callback(
             pass
 
         return await callback_query.message.edit_text(
-            text=f"{callback_query.message.html_text}\n\n❌ Операция отменена"
+            text=f"{callback_query.message.html_text}\n\n❌ Операция отменена", reply_markup=None
         )
 
 
