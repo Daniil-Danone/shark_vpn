@@ -18,6 +18,22 @@ class ConfigCallback(CallbackData, prefix="config"):
     config_id: int
 
 
+class ConfigSubCallback(CallbackData, prefix="config_sub"):
+    action: str
+    page: int = 0
+    config_id: int
+
+
+class ConfigCancelSubCallback(CallbackData, prefix="config_sub_cancel"):
+    action: str
+    config_id: int
+
+
+class ConfigCancelSubConfirmCallback(CallbackData, prefix="config_sub_cancel_confirm"):
+    action: str
+    config_id: int
+
+
 class BalanceCallback(CallbackData, prefix="balance"):
     action: str
 

@@ -80,6 +80,12 @@ class ConfigService:
     
     @staticmethod
     @sync_to_async
+    def set_cancel_sub_config(config: Config):
+        config.is_sub = False
+        config.save()
+    
+    @staticmethod
+    @sync_to_async
     def set_disable_config(config: Config):
         config.status = "disable"
         config.save()

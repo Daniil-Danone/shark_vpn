@@ -65,7 +65,8 @@ async def process_config_callback(
             document=FSInputFile(path=config_path, filename=config_filename),
             caption=messages.CONFIG_FILE.format(
                 config_name=config_filename,
-                expiring_at=date
+                expiring_at=date,
+                sub="✅ Активна" if config.is_sub else "❌ Неактивна"
             )
         )
         

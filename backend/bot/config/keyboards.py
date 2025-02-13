@@ -207,11 +207,92 @@ def faq_keyboard():
     )
 
     builder.add(
+        InlineKeyboardButton(text="Подписки", callback_data=FAQCallback(action="sub").pack())
+    )
+
+    builder.add(
         InlineKeyboardButton(text="Чат поддержки", callback_data=FAQCallback(action="tech_support").pack())
     )
 
     builder.add(
         InlineKeyboardButton(text="Выплаты", callback_data=FAQCallback(action="cash_outs").pack())
+    )
+
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def configs_sub_keyboard(configs: List[Config], page: int = 0):
+    builder = InlineKeyboardBuilder()
+
+    now = timezone.now()
+
+    start_idx = page * ITEMS_PER_PAGE
+    end_idx = start_idx + ITEMS_PER_PAGE
+    page_configs = configs[start_idx:end_idx]
+
+    for config in page_configs:
+        if config.expiring_at < now.date():
+            continue
+        
+        builder.row(
+            InlineKeyboardButton(text=f"{config.config_name}.ovpn", callback_data=ConfigSubCallback(action="config", config_id=config.id).pack())
+        )
+
+    pagination_buttons = []
+
+    if page > 0:
+        pagination_buttons.append(
+            InlineKeyboardButton(text="⬅️", callback_data=ConfigSubCallback(action="page", config_id=0, page=page-1).pack())
+        )
+    else:
+        pagination_buttons.append(
+            InlineKeyboardButton(text=" ", callback_data="ignore")
+        )
+
+    pagination_buttons.append(
+        InlineKeyboardButton(text=f"Страница {page + 1}", callback_data="ignore")
+    )
+
+    if end_idx < len(configs):
+        pagination_buttons.append(
+            InlineKeyboardButton(text="➡️", callback_data=ConfigSubCallback(action="page", config_id=0, page=page+1).pack())
+        )
+    else:
+        pagination_buttons.append(
+            InlineKeyboardButton(text=" ", callback_data="ignore")
+        )
+    
+    if len(configs) > ITEMS_PER_PAGE:
+        builder.row(*pagination_buttons)
+
+    return builder.as_markup()
+
+
+def cancel_sub(config_id: int):
+    builder = InlineKeyboardBuilder()
+
+    builder.add(
+        InlineKeyboardButton(text="Отменить подписку", callback_data=ConfigCancelSubCallback(action="cancel", config_id=config_id).pack())
+    )
+
+    builder.add(
+        InlineKeyboardButton(text="Назад", callback_data=ConfigCancelSubCallback(action="back", config_id=config_id).pack())
+    )
+
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def cancel_sub_confirm(config_id: int):
+    builder = InlineKeyboardBuilder()
+
+    builder.add(
+        InlineKeyboardButton(text="Да, отменить подписку", callback_data=ConfigCancelSubConfirmCallback(action="cancel", config_id=config_id).pack())
+    )
+
+    builder.add(
+        InlineKeyboardButton(text="Нет, не отменять", callback_data=ConfigCancelSubConfirmCallback(action="back", config_id=config_id).pack())
     )
 
     builder.adjust(1)

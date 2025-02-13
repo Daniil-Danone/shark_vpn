@@ -64,6 +64,10 @@ class Config(models.Model):
         verbose_name="Дата окончания тарифа", blank=True, null=True
     )
 
+    is_sub = models.BooleanField(
+        verbose_name="Подписка активна", default=True
+    )
+
     created_at = models.DateTimeField(
         verbose_name="Дата создания", auto_now_add=True, null=True
     )

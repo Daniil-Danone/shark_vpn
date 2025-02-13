@@ -134,7 +134,8 @@ CONFIG_FILE_NOT_FOUND: str = """\
 
 CONFIG_FILE: str = """\
 Конфиг: {config_name}
-Активен до: {expiring_at}\
+Активен до: {expiring_at}
+Подписка: {sub}\
 """
 
 CONFIG_OVERDUED: str = """\
@@ -239,6 +240,18 @@ FAQ_CASHOUTS: str = """\
 
 ❗️ Обратите внимание
 Минимальная сумма вывода 2.000₽\
+"""
+
+FAQ_SUB: str = """\
+В данном разделе можно отменить подписки на конфиги. Выберите конфиг:
+"""
+
+CANCEL_SUB: str = """\
+Вы уверены, что хотите отменить подписку?\
+"""
+
+SUB_CANCELLED: str = """\
+Подписка на конфиг {config_name} отменена!\
 """
 
 FAQ_THEMES: str = """\
