@@ -44,7 +44,8 @@ async def process_config_callback(
 
     if action == "page":
         configs = await ConfigService.get_user_configs(user_id=user_id)
-        return await callback_query.message.edit_reply_markup(
+        return await callback_query.message.edit_text(
+            text=helpers.create_config_message(configs=configs, page=page),
             reply_markup=keyboards.configs_keyboard(configs=configs, page=page)
         )
     

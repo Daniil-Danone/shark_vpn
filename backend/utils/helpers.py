@@ -1,11 +1,13 @@
 from datetime import date
-from typing import List
+from django.utils import timezone
+from typing import List, Optional
 from babel.dates import format_date
 
 from apps.users.models import User
 from apps.configs.models import Config
 from apps.referals.models import Referal
 
+from config.environment import ITEMS_PER_PAGE
 from bot.config import messages
 
 
@@ -13,12 +15,21 @@ def form_date(date: date):
     return format_date(date=date, format='d MMMM y', locale='ru')
 
 
-def create_config_message(configs: List[Config]) -> str:
+def create_config_message(configs: List[Config], page: Optional[int] = 0) -> str:
+    now = timezone.now()
+
+    start_idx = page * ITEMS_PER_PAGE
+    end_idx = start_idx + ITEMS_PER_PAGE
+    page_configs = configs[start_idx:end_idx]
+
     text = "<blockquote>📝 Мои конфиги</blockquote>\n\n"
 
     configs_str = []
 
-    for config in configs:
+    for config in page_configs:
+        if config.expiring_at < now.date():
+            continue
+
         date = form_date(date=config.expiring_at)
 
         configs_str.append(f"Конфиг: {config.config_name}.ovpn\nАктивен до: {date}")
