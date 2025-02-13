@@ -49,7 +49,7 @@ class ConfigService:
     @staticmethod
     @sync_to_async
     def get_user_configs(user_id: int) -> List[Config]:
-        configs = Config.objects.filter(user__user_id=user_id, config_name__isnull=False).order_by("-payed_at")
+        configs = Config.objects.filter(user__user_id=user_id).order_by("-created_at")
         return list(configs)
     
     @staticmethod
