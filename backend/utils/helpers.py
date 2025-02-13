@@ -16,8 +16,6 @@ def form_date(date: date):
 
 
 def create_config_message(configs: List[Config], page: Optional[int] = 0) -> str:
-    now = timezone.now()
-
     start_idx = page * ITEMS_PER_PAGE
     end_idx = start_idx + ITEMS_PER_PAGE
     page_configs = configs[start_idx:end_idx]
@@ -27,9 +25,6 @@ def create_config_message(configs: List[Config], page: Optional[int] = 0) -> str
     configs_str = []
 
     for config in page_configs:
-        if config.expiring_at < now.date():
-            continue
-
         date = form_date(date=config.expiring_at)
 
         configs_str.append(f"Конфиг: {config.config_name}.ovpn\nАктивен до: {date}")

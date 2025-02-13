@@ -116,10 +116,7 @@ def configs_keyboard(configs: List[Config], page: int = 0):
     end_idx = start_idx + ITEMS_PER_PAGE
     page_configs = configs[start_idx:end_idx]
 
-    for config in page_configs:
-        if config.expiring_at < now.date():
-            continue
-        
+    for config in page_configs:       
         builder.row(
             InlineKeyboardButton(text=f"{config.config_name}.ovpn", callback_data=ConfigCallback(action="config", config_id=config.id).pack())
         )
