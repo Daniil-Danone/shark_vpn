@@ -126,6 +126,8 @@ async def process_payment_callback(
         partner = await ReferalService.get_partner_by_referal(referal_id=user_id)
         if partner:
             await UserService.accure_bonuses(partner=partner, amount=receipt.tariff.partner_bonuses)
+
+        await callback_query.message.delete()
             
         config_name = openvpn.generate_vpn_config()
 
