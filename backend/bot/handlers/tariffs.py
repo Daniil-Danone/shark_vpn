@@ -135,6 +135,10 @@ async def process_payment_callback(
             user=user, tariff=receipt.tariff, receipt=receipt, config_name=config_name
         )
 
+        await ReceiptService.update_receipt(
+            receipt_id=receipt_id, payment_status=action
+        )
+
         config_filename = f"{config_name}.ovpn"
         config_file = CONFIGS_DIR / f"{config_filename}"
 
