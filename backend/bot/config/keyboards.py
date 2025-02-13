@@ -76,7 +76,7 @@ def tariffs_keyboard(tariffs: List[Tariff], page: int = 0):
     return builder.as_markup()
 
 
-def tariff_payment_keyboard(config_id: int, url: str, is_balance: bool):
+def tariff_payment_keyboard(receipt_id: int, url: str, is_balance: bool):
     builder = InlineKeyboardBuilder()
 
     builder.row(
@@ -85,12 +85,12 @@ def tariff_payment_keyboard(config_id: int, url: str, is_balance: bool):
 
     if is_balance:
         builder.row(
-            InlineKeyboardButton(text="Списать с баланса", callback_data=PaymentCallback(action="balance", config_id=config_id).pack())
+            InlineKeyboardButton(text="Списать с баланса", callback_data=PaymentCallback(action="balance", receipt_id=receipt_id).pack())
         )
 
     builder.row(
-        InlineKeyboardButton(text="✅ Готово", callback_data=PaymentCallback(action="done", config_id=config_id).pack()),
-        InlineKeyboardButton(text="❌ Отмена", callback_data=PaymentCallback(action="cancel", config_id=config_id).pack())
+        InlineKeyboardButton(text="✅ Готово", callback_data=PaymentCallback(action="done", receipt_id=receipt_id).pack()),
+        InlineKeyboardButton(text="❌ Отмена", callback_data=PaymentCallback(action="cancel", receipt_id=receipt_id).pack())
     )
 
     return builder.as_markup()

@@ -9,7 +9,7 @@ class TariffCallback(CallbackData, prefix="tariff"):
 
 class PaymentCallback(CallbackData, prefix="payment"):
     action: str
-    config_id: int
+    receipt_id: int
 
 
 class ConfigCallback(CallbackData, prefix="config"):

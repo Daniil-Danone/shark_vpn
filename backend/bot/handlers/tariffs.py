@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, FSInputFile
 
 from apps.users.service import UserService
-from apps.tariffs.service import TariffService
+from apps.tariffs.service import TariffService, ReceiptService
 from apps.configs.service import ConfigService
 from apps.referals.service import ReferalService
 
@@ -64,7 +64,7 @@ async def process_tariff_callback(
                 show_alert=True
             )
         
-        config = await ConfigService.create_config(
+        receipt = await ReceiptService.create_receipt(
             user=user, tariff=tariff, payment_id=payment_id
         )
 
@@ -74,7 +74,7 @@ async def process_tariff_callback(
                     title=tariff.title, price=tariff.price
                 ),
                 reply_markup=keyboards.tariff_payment_keyboard(
-                    config_id=config.id, url=payment_url, is_balance=True
+                    receipt_id=receipt.id, url=payment_url, is_balance=True
                 )
             )
 
@@ -83,7 +83,7 @@ async def process_tariff_callback(
                 title=tariff.title, price=tariff.price
             ),
             reply_markup=keyboards.tariff_payment_keyboard(
-                config_id=config.id, url=payment_url, is_balance=False
+                receipt_id=receipt.id, url=payment_url, is_balance=False
             )
         )
 
@@ -96,15 +96,15 @@ async def process_payment_callback(
     user_id = callback_query.from_user.id
 
     action = callback_data.action
-    config_id = callback_data.config_id
+    receipt_id = callback_data.receipt_id
 
     user = await UserService.get_user(user_id=user_id)
-    config = await ConfigService.get_config(config_id=config_id)
+    receipt = await ReceiptService.get_receipt(receipt_id=receipt_id)
 
     if action in ["done", "balance"]:
         if action == "done":
             try:
-                if not payment.check_status(payment_id=config.payment_id):
+                if not payment.check_status(payment_id=receipt.payment_id):
                     return await callback_query.answer(
                         text=messages.PAYMENT_NOT_CONFIRMED,
                         show_alert=True
@@ -116,27 +116,27 @@ async def process_payment_callback(
                 )
         
         elif action == "balance":
-            if user.balance < config.tariff.price:
+            if user.balance < receipt.tariff.price:
                 return await callback_query.answer(
                     text=messages.FAILED_TO_PAY_BALANCE
                 )
             
-            await UserService.writeoff_balance(user=user, amount=float(config.tariff.price))
+            await UserService.writeoff_balance(user=user, amount=float(receipt.tariff.price))
             
         partner = await ReferalService.get_partner_by_referal(referal_id=user_id)
         if partner:
-            await UserService.accure_bonuses(partner=partner, amount=config.tariff.partner_bonuses)
+            await UserService.accure_bonuses(partner=partner, amount=receipt.tariff.partner_bonuses)
             
         config_name = openvpn.generate_vpn_config()
+
+        config = await ConfigService.create_config(
+            user=user, tariff=receipt.tariff, receipt=receipt, config_name=config_name
+        )
 
         config_filename = f"{config_name}.ovpn"
         config_file = CONFIGS_DIR / f"{config_filename}"
 
-        upd_config = await ConfigService.update_config(
-            config_id=config_id, payment_status="done", config_name=config_name
-        )
-
-        date = helpers.form_date(date=upd_config.expiring_at)
+        date = helpers.form_date(date=config.expiring_at)
 
         return await callback_query.message.answer_document(
             document=FSInputFile(path=config_file, filename=config_filename),
@@ -149,13 +149,13 @@ async def process_payment_callback(
     elif action == "cancel":
         try:
             payment.cancel_payment(
-                payment_id=config.payment_id
+                payment_id=receipt.payment_id
             )
         except RuntimeError:
             pass
 
-        await ConfigService.update_config(
-            config_id=config_id, payment_status="cancel"
+        await ReceiptService.update_receipt(
+            receipt_id=receipt_id, payment_status="cancel"
         )
 
         return await callback_query.message.delete()

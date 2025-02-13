@@ -4,8 +4,8 @@ from apps.configs.models import Config
 
 class ConfigAdmin(admin.ModelAdmin):
     list_display = (
-        "user", "tariff", "payment_status", "status", "active", 
-        "payed_at", "config_name", "expiring_at", "is_sub", "created_at"
+        "user", "tariff", "receipt", "is_sub", "status", "active", 
+        "config_name", "created_at", "expiring_at",  
     )
 
     # readonly_fields = (

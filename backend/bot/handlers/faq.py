@@ -57,7 +57,7 @@ async def process_faq_callback(
     
     elif action == "sub":
         configs = await ConfigService.get_user_configs(user_id=user_id)
-        return await callback_query.message.answer(
+        return await callback_query.message.edit_text(
             text=messages.FAQ_SUB,
             reply_markup=keyboards.configs_sub_keyboard(configs=configs)
         )

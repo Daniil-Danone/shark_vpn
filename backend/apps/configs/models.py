@@ -1,15 +1,9 @@
 from django.db import models
 from apps.users.models import User
-from apps.tariffs.models import Tariff
+from apps.tariffs.models import Tariff, Receipt
+
 
 class Config(models.Model):
-    PAYMENT_STATUS_CHOICES = [
-        ("done", "✅ Оплачено"),
-        ("balance", "💰 Списано с баланса"),
-        ("wait", "🕒 Ожидает оплаты"),
-        ("cancel", "❌ Отклонён"),
-    ]
-
     STATUS_CHOICES = [
         ("enable", "✅ Активен"),
         ("disable", "❌ Неактивен"),
@@ -25,19 +19,19 @@ class Config(models.Model):
     )
 
     user = models.ForeignKey(
-        User, verbose_name="Пользователь", on_delete=models.SET_NULL, blank=False, null=True, related_name="configs"
+        User, verbose_name="Пользователь", on_delete=models.SET_NULL, blank=False, null=True, related_name="user_configs"
     )
 
     tariff = models.ForeignKey(
-        Tariff, verbose_name="Тариф", on_delete=models.SET_NULL, blank=False, null=True, related_name="configs"
+        Tariff, verbose_name="Тариф", on_delete=models.SET_NULL, blank=False, null=True, related_name="tariff_configs"
     )
 
-    payment_status = models.CharField(
-        verbose_name="Статус оплаты", choices=PAYMENT_STATUS_CHOICES, default="wait", max_length=10
+    receipt = models.ForeignKey(
+        Receipt, verbose_name="Операция", on_delete=models.SET_NULL, blank=False, null=True, related_name="receipt_configs"
     )
 
     status = models.CharField(
-        verbose_name="Статус активности", choices=STATUS_CHOICES, default="disable", max_length=10
+        verbose_name="Статус активности", choices=STATUS_CHOICES, default="enable", max_length=10
     )
 
     active = models.CharField(
@@ -48,16 +42,8 @@ class Config(models.Model):
         verbose_name="Название конфига", blank=True, null=True
     )
 
-    payment_id = models.CharField(
-        verbose_name="ID платежа", blank=True, null=True
-    )
-
-    payed_at = models.DateTimeField(
-        verbose_name="Дата оплаты", blank=True, null=True
-    )
-
-    cancelled_at = models.DateTimeField(
-        verbose_name="Дата отмены операции", blank=True, null=True
+    created_at = models.DateTimeField(
+        verbose_name="Дата создания", auto_now_add=True, null=True
     )
 
     expiring_at = models.DateField(
@@ -66,10 +52,6 @@ class Config(models.Model):
 
     is_sub = models.BooleanField(
         verbose_name="Подписка активна", default=True
-    )
-
-    created_at = models.DateTimeField(
-        verbose_name="Дата создания", auto_now_add=True, null=True
     )
 
     def __str__(self):
