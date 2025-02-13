@@ -36,6 +36,13 @@ class UserService:
         partner.earned = round(partner.earned + PARTNER_BONUS, 2)
         partner.balance = round(partner.balance + PARTNER_BONUS, 2)
         partner.save
+
+    @staticmethod
+    @sync_to_async
+    def accure_bonuses(partner: User, amount: int) -> User:
+        partner.earned = round(partner.earned + amount, 2)
+        partner.balance = round(partner.balance + amount, 2)
+        partner.save
     
     @staticmethod
     @sync_to_async

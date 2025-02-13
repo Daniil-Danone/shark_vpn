@@ -6,6 +6,7 @@ from aiogram.types import Message, CallbackQuery, FSInputFile
 from apps.users.service import UserService
 from apps.tariffs.service import TariffService
 from apps.configs.service import ConfigService
+from apps.referals.service import ReferalService
 
 from bot.config import messages
 from bot.config import keyboards
@@ -121,6 +122,10 @@ async def process_payment_callback(
                 )
             
             await UserService.writeoff_balance(user=user, amount=float(config.tariff.price))
+            
+        partner = await ReferalService.get_partner_by_referal(referal_id=user_id)
+        if partner:
+            await UserService.accure_bonuses(partner=partner, amount=config.tariff.partner_bonuses)
             
         config_name = openvpn.generate_vpn_config()
 

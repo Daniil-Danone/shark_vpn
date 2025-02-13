@@ -5,11 +5,11 @@ from apps.operations.models import Operation
 
 class OperationAdmin(admin.ModelAdmin):
     list_display = (
-        "type", "method", "status", "amount", "user", "completed_at", "created_at",
+        "type", "status", "amount", "user", "completed_at", "created_at",
     )
 
     list_filter = (
-        "type", "method", "status",
+        "type", "status",
     )
 
     search_fields = (
@@ -17,8 +17,12 @@ class OperationAdmin(admin.ModelAdmin):
     )
 
     readonly_fields = (
-        "type", "method", "status", "user", "wallet", "amount", 
+        "type", "status", "user", "wallet", "amount", 
         "payment_id", "completed_at", "cancelled_at", "created_at"
+    )
+
+    exclude = (
+        "method",
     )
 
 

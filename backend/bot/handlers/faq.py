@@ -36,11 +36,8 @@ async def process_faq_callback(
         )
     
     elif action == "problems":
-        themes = await FAQThemeService.get_themes()
-
-        return await callback_query.message.edit_text(
-            text=messages.FAQ_THEMES,
-            reply_markup=keyboards.themes_keyboard(themes=themes)
+        return await callback_query.message.answer(
+            text=messages.FAQ_VPN_NOT_WORKING
         )
 
     elif action == "tech_support":

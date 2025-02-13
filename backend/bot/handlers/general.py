@@ -29,7 +29,7 @@ async def process_start_message(
     try:
         partner_id = int(message.text.split(maxsplit=1)[1])
         
-        if not await ReferalService.get_referal(partner_id=partner_id, referal_id=user_id):
+        if not await ReferalService.get_partner_by_referal(referal_id=user_id):
             partner = await UserService.get_user(user_id=partner_id)
             await ReferalService.create_referal(partner=partner, referal=user)
             await UserService.accure_referal_bonuses(referal=user)

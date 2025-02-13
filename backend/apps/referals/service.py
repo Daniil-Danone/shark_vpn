@@ -26,6 +26,17 @@ class ReferalService:
     
     @staticmethod
     @sync_to_async
+    def get_partner_by_referal(referal_id: int) -> User:
+        try:
+            referal = Referal.objects.get(
+                referal__user_id=referal_id
+            )
+            return referal.partner
+        except Referal.DoesNotExist:
+            return None
+    
+    @staticmethod
+    @sync_to_async
     def create_referal(partner: User, referal: User):
         Referal.objects.create(partner=partner, referal=referal)
     

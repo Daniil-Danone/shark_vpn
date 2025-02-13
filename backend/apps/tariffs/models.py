@@ -21,6 +21,10 @@ class Tariff(models.Model):
         verbose_name="Цена", max_digits=10, decimal_places=2, blank=False, null=False
     )
 
+    partner_bonuses = models.PositiveIntegerField(
+        verbose_name="Количество бонусов для партнёра при оплате", default=0
+    )
+
     is_vip = models.BooleanField(
         verbose_name="VIP статус", default=False
     )

@@ -180,60 +180,12 @@ def cancel_operation_keyboard():
     return builder.as_markup()
 
 
-def cash_in_method_keyboard():
-    builder = InlineKeyboardBuilder()
-
-    builder.add(
-        InlineKeyboardButton(text="USDT", callback_data=CashInMethodCallback(method="usdt").pack())
-    )
-
-    builder.add(
-        InlineKeyboardButton(text="Карта", callback_data=CashInMethodCallback(method="card").pack())
-    )
-
-    builder.add(
-        InlineKeyboardButton(text="❌ Отмена", callback_data=CancelBalanceOperationCallback().pack())
-    )
-
-    builder.adjust(1)
-    return builder.as_markup()
-
-
-def cash_out_method_keyboard():
-    builder = InlineKeyboardBuilder()
-
-    builder.add(
-        InlineKeyboardButton(text="USDT", callback_data=CashOutMethodCallback(method="usdt").pack())
-    )
-
-    builder.add(
-        InlineKeyboardButton(text="Карта", callback_data=CashOutMethodCallback(method="card").pack())
-    )
-
-    builder.add(
-        InlineKeyboardButton(text="❌ Отмена", callback_data=CancelBalanceOperationCallback().pack())
-    )
-
-    builder.adjust(1)
-    return builder.as_markup()
-
-
-def cash_in_card_keyboard(operation_id: int, url: str):
+def cash_in_payment_keyboard(operation_id: int, url: str):
     builder = InlineKeyboardBuilder()
 
     builder.row(
         InlineKeyboardButton(text="Пополнить", web_app=WebAppInfo(url=url))
     )
-
-    builder.row(
-        InlineKeyboardButton(text="✅ Готово", callback_data=OperationCallback(operation_id=operation_id, action="done").pack()),
-        InlineKeyboardButton(text="❌ Отмена", callback_data=OperationCallback(operation_id=operation_id, action="cancel").pack())
-    )
-
-    return builder.as_markup()
-
-def cash_in_usdt_keyboard(operation_id: int):
-    builder = InlineKeyboardBuilder()
 
     builder.row(
         InlineKeyboardButton(text="✅ Готово", callback_data=OperationCallback(operation_id=operation_id, action="done").pack()),
