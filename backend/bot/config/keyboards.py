@@ -21,7 +21,6 @@ def main_menu_keyboard():
         KeyboardButton(text="💰 Баланс"),
         KeyboardButton(text="👥 Реферальная система"),
         KeyboardButton(text="❓ Помощь 24/7"),
-        KeyboardButton(text="🤝 Сотрудничество"),
         KeyboardButton(text="🔒 Конфиденциальность"),
     ]
 
@@ -29,7 +28,6 @@ def main_menu_keyboard():
     builder.row(buttons[2], buttons[3])
     builder.row(buttons[4])
     builder.row(buttons[5])
-    builder.row(buttons[6])
 
     return builder.as_markup(resize_keyboard=True)
 
