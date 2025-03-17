@@ -14,8 +14,7 @@ async def process_cooperation_message(
     message: Message, state: FSMContext
 ):
     return await message.answer(
-        text=messages.COOPERATION_MESSAGE,
-        reply_markup=keyboards.cooperation_keyboard()
+        text=messages.COOPERATION_MESSAGE
     )
 
 
