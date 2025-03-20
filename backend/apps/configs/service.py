@@ -29,7 +29,9 @@ class ConfigService:
     @sync_to_async
     def get_user_configs(user_id: int) -> List[Config]:
         now = timezone.now().date()
-        configs = Config.objects.filter(user__user_id=user_id, expiring_at__gte=now).order_by("-created_at")
+        configs = Config.objects.filter(
+            user__user_id=user_id, expiring_at__gte=now
+        ).prefetch_related("tariff", "user").order_by("-created_at")
         return list(configs)
     
     @staticmethod
