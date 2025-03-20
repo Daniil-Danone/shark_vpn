@@ -26,7 +26,7 @@ async def delete_task_by_job_id(job_id: str):
 
 async def process_overdued_config(overdue_config: Config):
     try:
-        await openvpn.revoke_vpn_client(client_name=overdue_config.config_name)
+        openvpn.revoke_vpn_client(client_name=overdue_config.config_name)
         
         await ConfigService.update_config(
             config_id=overdue_config.id, 
