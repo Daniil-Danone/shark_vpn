@@ -16,7 +16,7 @@ class ConfigService:
     def get_all() -> List[Config]:
         configs = Config.objects.all()
         return list(configs)
-   
+    
     @staticmethod
     @sync_to_async
     def get_config(config_id: int) -> Config:

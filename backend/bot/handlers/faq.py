@@ -120,8 +120,7 @@ async def process_config_sub_restore_callback(
     await ConfigService.update_config(config_id=config.id, data={"is_sub": True})
 
     return await callback_query.message.edit_text(
-        text=messages.SUB_RESTORED.format(config_name=f"{config.config_name}.ovpn"),
-        reply_markup=keyboards.configs_sub_keyboard(configs=[config])
+        text=messages.SUB_RESTORED.format(config_name=f"{config.config_name}.ovpn")
     )
     
 
