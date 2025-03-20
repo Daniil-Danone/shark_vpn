@@ -30,7 +30,7 @@ class YoukassaWebhookAPIView(APIView):
         if payment_status == SUCCEEDED:
             logger.info(f"[YOUKASSA WEBHOOK] PAYMENT SUCCESS! ({payment_id})")
             tasks.send_payment_success.apply_async(
-                args=(payment_id, ),
+                args=(payment_id, payment_object),
             )
             
         else:
