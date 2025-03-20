@@ -33,14 +33,20 @@ def generate_vpn_config() -> str:
 
 def revoke_vpn_client(client_name: str) -> bool:
     try:
-        process = pexpect.spawn('./openvpn-install.sh', encoding='utf-8', timeout=60)
+        process = pexpect.spawn('./openvpn-install.sh', encoding='utf-8', timeout=300)
         
         process.expect('Select an option:')
         process.sendline('2')
 
         process.expect('Select the client to revoke:')
+        vpn_logger.debug(f"Вывод до expect: {process.before}")
+        vpn_logger.debug(f"Вывод после expect: {process.after}")
+
+        vpn_logger.debug(f"Список клиентов")
 
         process.expect('\d+\) \w+')
+        vpn_logger.debug(f"Вывод до expect: {process.before}")
+        vpn_logger.debug(f"Вывод после expect: {process.after}")
         clients_list = process.before.splitlines()[1:]
         vpn_logger.debug(f"Список клиентов для отзыва: {clients_list}")
 
