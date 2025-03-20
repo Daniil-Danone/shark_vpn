@@ -49,14 +49,17 @@ def revoke_vpn_client(client_name: str) -> bool:
         vpn_logger.debug(f"Вывод после expect: {process.after}")
 
         clients_output = process.before.strip()
-        clients_list = clients_output.splitlines()
+        clients_list = [line.strip() for line in clients_output.splitlines()]
 
         vpn_logger.debug(f"Список клиентов для отзыва: {clients_list}")
 
         client_index = None
         for i, line in enumerate(clients_list):
             if client_name in line:
-                client_index = i + 1
+                client_index = line.split(')')[0].strip()
+                break
+
+        vpn_logger.debug(f"Клиент {client_name} найден. Номер: {client_index}")
         
         if client_index is None:
             vpn_logger.error(f"Клиент {client_name} не найден.")
@@ -65,10 +68,12 @@ def revoke_vpn_client(client_name: str) -> bool:
 
         process.sendline(str(client_index))
         
-        process.expect(f'Confirm {client_name} revocation? [y/N]:')
+        vpn_logger.debug(f"Ожидание подвтерждения")
+
+        process.expect(f'Confirm {client_name} revocation\? \[y/N\]:')
         process.sendline('y')
 
-        process.expect(pexpect.EOF)
+        process.expect(pexpect.EOF, timeout=60)
         process.close()
 
         vpn_logger.debug(f"Клиент {client_name} успешно отозван.")
