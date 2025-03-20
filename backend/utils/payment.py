@@ -102,11 +102,30 @@ def check_status(payment_id: str) -> Tuple[bool, Optional[str]]:
     return True, payment_method_id
 
 
-def init_recurrent_payment(amount: float, payment_method_id: str, description: str) -> str:
+def init_recurrent_payment(amount: float, payment_method_id: str, description: str, client_fullname: str, client_email: str) -> str:
     payload = {
         "amount": {
             "value": f"{amount:.2f}",
             "currency": "RUB"
+        },
+        "receipt": {
+            "customer": {
+                "full_name": client_fullname,
+                "email": client_email
+            },
+            "items": [
+                {
+                    "description": description,
+                    "amount": {
+                        "value": f"{amount:.2f}",
+                        "currency": "RUB"
+                    },
+                    "vat_code": 1,
+                    "quantity": 1,
+                    "payment_subject": "commodity",
+                    "payment_mode": "full_payment"
+                }
+            ]
         },
         "capture": True,
         "payment_method_id": payment_method_id,

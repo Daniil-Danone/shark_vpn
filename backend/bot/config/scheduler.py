@@ -50,6 +50,7 @@ async def process_overdued_config(overdue_config: Config):
             amount=overdue_config.tariff.price,
             payment_method_id=overdue_config.payment_method_id,
             description=f"Оплата подписки {overdue_config.tariff.title}",
+            client_email="it@ledokol.it", client_fullname=overdue_config.user.full_name
         )
 
         receipt = await ReceiptService.create_receipt(
