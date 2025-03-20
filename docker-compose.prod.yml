@@ -65,6 +65,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     command: celery -A config.celery_app worker --loglevel=info
+    devices:
+      - /dev/net/tun:/dev/net/tun
     depends_on:
       - backend
       - bot
