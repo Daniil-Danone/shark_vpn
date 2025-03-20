@@ -65,7 +65,7 @@ def revoke_vpn_client(client_name: str) -> bool:
 
         process.sendline(str(client_index))
         
-        process.expect('Confirm client revocation? [y/N]:')
+        process.expect(f'Confirm {client_name} revocation? [y/N]:')
         process.sendline('y')
 
         process.expect(pexpect.EOF)
