@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Dict, List, Optional
 from django.utils import timezone
 from dateutil.relativedelta import relativedelta
 
@@ -10,6 +10,12 @@ from apps.configs.models import Config
 
 
 class ConfigService:
+
+    @staticmethod
+    @sync_to_async
+    def get_all() -> List[Config]:
+        configs = Config.objects.all()
+        return list(configs)
    
     @staticmethod
     @sync_to_async
@@ -18,6 +24,20 @@ class ConfigService:
             return Config.objects.prefetch_related("tariff").get(id=config_id)
         except Config.DoesNotExist:
             return None
+    
+    @staticmethod
+    @sync_to_async
+    def get_user_configs(user_id: int) -> List[Config]:
+        now = timezone.now().date()
+        configs = Config.objects.filter(user__user_id=user_id, expiring_at__gte=now).order_by("-created_at")
+        return list(configs)
+    
+    @staticmethod
+    @sync_to_async
+    def get_overdue_configs() -> List[Config]:
+        today = timezone.now().date()
+        configs = Config.objects.prefetch_related("tariff", "user").filter(status="enable", expiring_at__lt=today)
+        return list(configs)
     
     @staticmethod
     @sync_to_async
@@ -39,47 +59,14 @@ class ConfigService:
         return Config.objects.create(
             user=user, tariff=tariff, receipt=receipt, config_name=config_name, expiring_at=expiring_at
         )
-    
-    @staticmethod
-    @sync_to_async
-    def get_all() -> List[Config]:
-        configs = Config.objects.all()
-        return list(configs)
-    
-    @staticmethod
-    @sync_to_async
-    def get_user_configs(user_id: int) -> List[Config]:
-        now = timezone.now().date()
-        configs = Config.objects.filter(user__user_id=user_id, expiring_at__gte=now).order_by("-created_at")
-        return list(configs)
-    
-    @staticmethod
-    @sync_to_async
-    def get_overdue_configs() -> List[Config]:
-        today = timezone.now().date()
-        configs = Config.objects.prefetch_related("user").filter(status="enable", expiring_at__lt=today)
-        return list(configs)
-    
-    @staticmethod
-    @sync_to_async
-    def set_cancel_sub_config(config: Config):
-        config.is_sub = False
-        config.save()
-    
-    @staticmethod
-    @sync_to_async
-    def set_disable_config(config: Config):
-        config.status = "disable"
-        config.save()
 
     @staticmethod
     @sync_to_async
-    def set_connected_config(config: Config):
-        config.active = "connected"
-        config.save()
-
-    @staticmethod
-    @sync_to_async
-    def set_disconnected_config(config: Config):
-        config.active = "disconnected"
-        config.save()
+    def update_config(config_id: int, data: Dict) -> bool:
+        try:
+            Config.objects.filter(id=config_id).update(**data)
+            return True
+        except Config.DoesNotExist:
+            return False
+        except Exception as e:
+            return False

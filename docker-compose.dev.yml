@@ -45,6 +45,32 @@ services:
     networks:
       - vpn_network
 
+  redis:
+    image: redis:latest
+    container_name: redis
+    command: redis-server --requirepass "${REDIS_PASSWORD}"
+    restart: always
+    ports:
+      - "6379:6379"
+
+  celery:
+    container_name: celery
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A config.celery_app worker --loglevel=info
+    depends_on:
+      - backend
+      - bot
+      - redis
+    volumes:
+      - ./openvpn_configs:/app/openvpn_configs
+      - ./openvpn-install.sh:/app/openvpn-install.sh
+      - /etc/openvpn:/etc/openvpn
+      - /var/log/syslog:/app/syslog
+    env_file:
+      - ./.env
+
   db:
     image: postgres:latest
     container_name: postgres

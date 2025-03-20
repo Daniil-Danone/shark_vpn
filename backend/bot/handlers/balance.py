@@ -113,10 +113,12 @@ async def process_cash_in_amount_message(
     )
     
     await state.clear()
-    return await message.answer(
+    operation_message = await message.answer(
         text=messages.CASH_IN_PAYMENT.format(amount=amount),
         reply_markup=keyboards.cash_in_payment_keyboard(operation_id=operation.id, url=payment_url)
     )
+
+    
 
 
 async def process_cash_out_amount_message(
@@ -210,7 +212,8 @@ async def process_operation_callback(
 
     if action == "done":
         try:
-            if not payment.check_status(payment_id=operation.payment_id):
+            status, payment_method_id = payment.check_status(payment_id=operation.payment_id)
+            if not status:
                 return await callback_query.answer(
                     text=messages.PAYMENT_NOT_CONFIRMED,
                     show_alert=True
@@ -221,13 +224,15 @@ async def process_operation_callback(
                 show_alert=True
             )
             
-        operation = await OperationService.update_operation(
-            operation_id=operation_id, status="done"
+        await OperationService.update_operation(
+            operation_id=operation_id, data={"status": "done"}
         )
 
-        user = await UserService.accure_balance(
-            user=user, amount=operation.amount
+        await UserService.accure_balance(
+            user_id=user_id, amount=operation.amount
         )
+
+        user = await UserService.get_user(user_id=user_id)
 
         await callback_query.message.edit_reply_markup(None)
 
@@ -245,7 +250,7 @@ async def process_operation_callback(
                 pass
 
         await OperationService.update_operation(
-            operation_id=operation_id, status="cancel"
+            operation_id=operation_id, data={"status": "cancel"}
         )
 
         return await callback_query.message.edit_reply_markup(None)
@@ -315,8 +320,8 @@ async def process_complete_cash_out_callback(
     user = await UserService.get_user(user_id=operation.user.user_id)
 
     if action == "done":
-        await OperationService.update_operation(operation_id=operation_id, status="done")
-        await UserService.writeoff_balance(user=user, amount=operation.amount)
+        await OperationService.update_operation(operation_id=operation_id, data={"status": "done"})
+        await UserService.writeoff_balance(user_id=user.user_id, amount=operation.amount)
 
         try:
             await bot.send_message(
@@ -331,7 +336,7 @@ async def process_complete_cash_out_callback(
         )
 
     elif action == "cancel":
-        await OperationService.update_operation(operation_id=operation_id, status="cancel")
+        await OperationService.update_operation(operation_id=operation_id, data={"status": "cancel"})
         try:
             await bot.send_message(
                 chat_id=user.user_id, 

@@ -50,6 +50,10 @@ class Config(models.Model):
         verbose_name="Дата окончания тарифа", blank=True, null=True
     )
 
+    payment_method_id = models.CharField(
+        verbose_name="ID метод оплаты", blank=True, null=True
+    )
+
     is_sub = models.BooleanField(
         verbose_name="Подписка активна", default=True
     )

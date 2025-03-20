@@ -2,11 +2,8 @@ import os
 from pathlib import Path
 
 from config.environment import (
-    POSTGRES_DB,
-    POSTGRES_HOST,
-    POSTGRES_PORT,
-    POSTGRES_USER,
-    POSTGRES_PASSWORD,
+    POSTGRES_DB, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_USER, POSTGRES_PASSWORD,
+    REDIS_HOST, REDIS_PORT, REDIS_PASSWORD
 )
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,6 +37,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
     "bot",
     "apps.users",
     "apps.tariffs",
@@ -138,3 +136,10 @@ JAZZMIN_SETTINGS = {
     "welcome_sign": "Добро пожаловать в админпанель",
     "show_sidebar": True,
 }
+
+# CELERY
+CELERY_BROKER_URL = f'redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/1'
+CELERY_RESULT_BACKEND = f'redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/2'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'

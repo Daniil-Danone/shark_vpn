@@ -14,6 +14,11 @@ POSTGRES_PORT: str = os.environ.get("POSTGRES_PORT")
 POSTGRES_USER: str = os.environ.get("POSTGRES_USER")
 POSTGRES_PASSWORD: str = os.environ.get("POSTGRES_PASSWORD")
 
+# Redis
+REDIS_HOST: str = os.getenv("REDIS_HOST")
+REDIS_PORT: str = os.getenv("REDIS_PORT")
+REDIS_PASSWORD: str = os.getenv("REDIS_PASSWORD")
+
 # Telegram
 BOT_TOKEN: str = os.environ.get("BOT_TOKEN")
 ADMIN_CHAT_ID: int = os.environ.get("ADMIN_CHAT_ID")
@@ -22,8 +27,8 @@ ITEMS_PER_PAGE: int = 6
 
 CONFIGS_DIR: Path = BASE_DIR / "openvpn_configs"
 
-REFERAL_BONUS: float = 80.00
-PARTNER_BONUS: float = 100.00
+REFERAL_BONUS: float = 50.00
+PARTNER_BONUS: float = 50.00
 
 # Constants
 SERVER_ROOT: str = "/root"

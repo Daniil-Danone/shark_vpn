@@ -86,6 +86,11 @@ async def process_config_sub_callback(
         config_filename = f"{config.config_name}.ovpn"
         
         date = helpers.form_date(date=config.expiring_at)
+
+        if config.is_sub == False:
+            keyboard = keyboards.restore_sub(config_id=config_id)
+        else:
+            keyboard = keyboards.cancel_sub(config_id=config_id)
         
         return await callback_query.message.edit_text(
             text=messages.CONFIG_FILE.format(
@@ -93,8 +98,31 @@ async def process_config_sub_callback(
                 expiring_at=date,
                 sub="✅ Активна" if config.is_sub else "❌ Неактивна"
             ),
-            reply_markup=keyboards.cancel_sub(config_id=config_id) if config.is_sub else None
+            reply_markup=keyboard
         )
+    
+
+async def process_config_sub_restore_callback(
+    callback_query: CallbackQuery,
+    callback_data: RestoreSubCallback,
+    state: FSMContext
+):
+    user_id = callback_query.from_user.id
+
+    if callback_data.action == "back":
+        configs = await ConfigService.get_user_configs(user_id=user_id)
+        return await callback_query.message.edit_text(
+            text=messages.FAQ_SUB,
+            reply_markup=keyboards.configs_sub_keyboard(configs=configs)
+        )
+    
+    config = await ConfigService.get_config(config_id=callback_data.config_id)
+    await ConfigService.update_config(config_id=config.id, data={"is_sub": True})
+
+    return await callback_query.message.edit_text(
+        text=messages.SUB_RESTORED.format(config_name=f"{config.config_name}.ovpn"),
+        reply_markup=keyboards.configs_sub_keyboard(configs=[config])
+    )
     
 
 async def process_config_sub_cancel_callback(
@@ -132,7 +160,7 @@ async def process_config_sub_cancel_confirm_callback(
         )
     
     config = await ConfigService.get_config(config_id=callback_data.config_id)
-    await ConfigService.set_cancel_sub_config(config=config)
+    await ConfigService.update_config(config_id=config.id, data={"is_sub": False})
 
     await callback_query.message.delete()
     
@@ -241,6 +269,10 @@ def register_handlers_faq(dp: Dispatcher):
 
     dp.callback_query.register(
         process_solution_callback, SolutionCallback.filter()
+    )
+
+    dp.callback_query.register(
+        process_config_sub_restore_callback, RestoreSubCallback.filter()
     )
 
     dp.callback_query.register(

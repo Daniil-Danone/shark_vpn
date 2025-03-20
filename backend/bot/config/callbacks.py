@@ -29,6 +29,14 @@ class ConfigCancelSubCallback(CallbackData, prefix="config_sub_cancel"):
     config_id: int
 
 
+class RetryReccurentCallback(CallbackData, prefix="retry_reccurent"):
+    config_id: int
+
+class RestoreSubCallback(CallbackData, prefix="restore_sub"):
+    action: str
+    config_id: int
+
+
 class ConfigCancelSubConfirmCallback(CallbackData, prefix="config_sub_cancel_confirm"):
     action: str
     config_id: int

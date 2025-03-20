@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 from django.utils import timezone
 from dateutil.relativedelta import relativedelta
 from asgiref.sync import sync_to_async
@@ -29,7 +29,15 @@ class ReceiptService:
     @sync_to_async
     def get_receipt(receipt_id: int) -> Receipt:
         try:
-            return Receipt.objects.prefetch_related("tariff").get(id=receipt_id)
+            return Receipt.objects.prefetch_related("tariff", "user").get(id=receipt_id)
+        except Receipt.DoesNotExist:
+            return None
+        
+    @staticmethod
+    @sync_to_async
+    def get_receipt_by_payment_id(payment_id: str) -> Receipt:
+        try:
+            return Receipt.objects.prefetch_related("tariff", "user").get(payment_id=payment_id)
         except Receipt.DoesNotExist:
             return None
 
@@ -40,20 +48,22 @@ class ReceiptService:
     
     @staticmethod
     @sync_to_async
-    def update_receipt(receipt_id: int, payment_status: str) -> Receipt:
-        receipt = Receipt.objects.get(id=receipt_id)
-        if not receipt:
-            return
-        
-        if payment_status in ["done", "balance"]:
-            now = timezone.now()
-            
-            receipt.status = payment_status
-            receipt.payed_at = now
-            
-        elif payment_status == "cancel":
-            receipt.status = payment_status
-
-        receipt.save()
-
-        return receipt
+    def update_receipt(receipt_id: int, data: Dict) -> bool:
+        try:
+            Receipt.objects.filter(id=receipt_id).update(**data)
+            return True
+        except Receipt.DoesNotExist:
+            return False
+        except Exception as e:
+            return False
+    
+    @staticmethod
+    @sync_to_async
+    def set_message_id(receipt_id: int, message_id: int) -> bool:
+        try:
+            Receipt.objects.filter(id=receipt_id).update(message_id=message_id)
+            return True
+        except Receipt.DoesNotExist:
+            return False
+        except Exception as e:
+            return False

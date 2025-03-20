@@ -39,6 +39,10 @@ def revoke_vpn_client(client_name: str) -> bool:
         process.sendline('2')
 
         process.expect('Select the client to revoke:')
+        
+        vpn_logger.debug(f"Вывод до expect: {process.before}")
+        vpn_logger.debug(f"Вывод после expect: {process.after}")
+
         clients_list = process.before.splitlines()[1:]
         vpn_logger.debug(f"Список клиентов для отзыва: {clients_list}")
 

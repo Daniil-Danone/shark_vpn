@@ -2,15 +2,19 @@ from typing import Dict
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
 
+from apps.configs.models import Config
 from utils.logger import scheduler_logger
 from utils import openvpn, system_core, configs_stat
 
 from apps.configs.service import ConfigService
+from apps.tariffs.service import ReceiptService
 
 from config.settings import TIME_ZONE
 
 from bot.config import messages, metric
 from bot.config.sessions import bot, asyncio_scheduler
+
+from utils import payment
 
 
 async def delete_task_by_job_id(job_id: str):
@@ -20,22 +24,56 @@ async def delete_task_by_job_id(job_id: str):
         scheduler_logger.debug(f"[DELETE JOB] Job {job_id} deleted")
 
 
-async def check_overdue_configs():
-    overdue_configs = await ConfigService.get_overdue_configs()
+async def process_overdued_config(overdue_config: Config):
+    try:
+        await openvpn.revoke_vpn_client(client_name=overdue_config.config_name)
+        
+        await ConfigService.update_config(
+            config_id=overdue_config.id, 
+            data={
+                "status": "disable",
+                "active": "disconnected"
+            }
+        )
+        scheduler_logger.debug(f"[OVERDUE] Config {overdue_config.config_name!r} revoked!")
 
-    for overdue_config in overdue_configs:
-        try:
-            await ConfigService.set_disable_config(config=overdue_config)
-            await openvpn.revoke_vpn_client(client_name=overdue_config.config_name)
+        if not overdue_config.is_sub or not overdue_config.payment_method_id:
             await bot.send_message(
                 chat_id=overdue_config.user.user_id,
                 text=messages.CONFIG_OVERDUED.format(
                     config_name=f"{overdue_config.config_name}.ovpn"
                 )
             )
-            scheduler_logger.debug(f"[OVERDUE] Config {overdue_config.config_name} revoked!")
-        except Exception as e:
-            scheduler_logger.error(f"[OVERDUE] Error: {e}")
+            return
+        
+        payment_id = payment.init_recurrent_payment(
+            amount=overdue_config.tariff.price,
+            payment_method_id=overdue_config.payment_method_id,
+            description=f"Оплата подписки {overdue_config.tariff.title}",
+        )
+
+        receipt = await ReceiptService.create_receipt(
+            user=overdue_config.user, tariff=overdue_config.tariff,
+            payment_id=payment_id
+        )
+
+        await ReceiptService.update_receipt(
+            receipt_id=receipt.id, data={
+                "is_reccurent": True,
+                "config_id": overdue_config.id
+            }
+        )
+
+        scheduler_logger.debug(f"[OVERDUE] Init reccurent payment for config {overdue_config.config_name!r} | payment id: {payment_id}")
+    except Exception as e:
+        scheduler_logger.error(f"[OVERDUE] Failed to revoke config {overdue_config.config_name!r}: {e}")
+
+
+async def check_overdue_configs():
+    overdue_configs = await ConfigService.get_overdue_configs()
+
+    for overdue_config in overdue_configs:
+        await process_overdued_config(overdue_config=overdue_config)
 
 
 async def update_metric():
@@ -70,9 +108,9 @@ async def update_metric():
             active_configs += 1
 
         if config.config_name not in connected_clients:
-            await ConfigService.set_disconnected_config(config=config)
+            await ConfigService.update_config(config_id=config.id, data={"active": "disconnected"})
         else:
-            await ConfigService.set_connected_config(config=config)
+            await ConfigService.update_config(config_id=config.id, data={"active": "connected"})
 
     metric.configs_active.set(active_configs)
     metric.configs_connected.set(len(connected_clients))

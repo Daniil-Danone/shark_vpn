@@ -37,6 +37,12 @@ class ReferalService:
     
     @staticmethod
     @sync_to_async
-    def create_referal(partner: User, referal: User):
-        Referal.objects.create(partner=partner, referal=referal)
+    def create_referal(partner: User, referal: User) -> Referal:
+        try:
+            referal = Referal.objects.prefetch_related("partner", "referal").create(
+                partner=partner, referal=referal
+            )
+            return referal
+        except Exception as e:
+            return None
     

@@ -76,11 +76,11 @@ def tariffs_keyboard(tariffs: List[Tariff], page: int = 0):
     return builder.as_markup()
 
 
-def tariff_payment_keyboard(receipt_id: int, url: str, is_balance: bool):
+def tariff_payment_keyboard(receipt_id: int, url: str, is_balance: bool):    
     builder = InlineKeyboardBuilder()
 
     builder.row(
-        InlineKeyboardButton(text="Оплатить по ссылке", web_app=WebAppInfo(url=url))
+        InlineKeyboardButton(text="Оплатить по ссылке", url=url)
     )
 
     if is_balance:
@@ -89,7 +89,6 @@ def tariff_payment_keyboard(receipt_id: int, url: str, is_balance: bool):
         )
 
     builder.row(
-        InlineKeyboardButton(text="✅ Готово", callback_data=PaymentCallback(action="done", receipt_id=receipt_id).pack()),
         InlineKeyboardButton(text="❌ Отмена", callback_data=PaymentCallback(action="cancel", receipt_id=receipt_id).pack())
     )
 
@@ -181,11 +180,10 @@ def cash_in_payment_keyboard(operation_id: int, url: str):
     builder = InlineKeyboardBuilder()
 
     builder.row(
-        InlineKeyboardButton(text="Пополнить", web_app=WebAppInfo(url=url))
+        InlineKeyboardButton(text="Пополнить", url=url)
     )
 
     builder.row(
-        InlineKeyboardButton(text="✅ Готово", callback_data=OperationCallback(operation_id=operation_id, action="done").pack()),
         InlineKeyboardButton(text="❌ Отмена", callback_data=OperationCallback(operation_id=operation_id, action="cancel").pack())
     )
 
@@ -263,6 +261,32 @@ def configs_sub_keyboard(configs: List[Config], page: int = 0):
     if len(configs) > ITEMS_PER_PAGE:
         builder.row(*pagination_buttons)
 
+    return builder.as_markup()
+
+
+def retry_reccurent_payment_keyboard(config_id: int):
+    builder = InlineKeyboardBuilder()
+
+    builder.add(
+        InlineKeyboardButton(text="Оплатить", callback_data=RetryReccurentCallback(config_id=config_id).pack())
+    )
+
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def restore_sub(config_id: int):
+    builder = InlineKeyboardBuilder()
+
+    builder.add(
+        InlineKeyboardButton(text="Включить подписку", callback_data=RestoreSubCallback(action="restore", config_id=config_id).pack())
+    )
+
+    builder.add(
+        InlineKeyboardButton(text="Назад", callback_data=RestoreSubCallback(action="back", config_id=config_id).pack())
+    )
+
+    builder.adjust(1)
     return builder.as_markup()
 
 

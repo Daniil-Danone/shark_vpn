@@ -75,12 +75,24 @@ class Receipt(models.Model):
         verbose_name="Статус оплаты", choices=PAYMENT_STATUS_CHOICES, default="wait", max_length=10
     )
 
+    message_id = models.BigIntegerField(
+        verbose_name="ID сообщения", blank=True, null=True
+    )
+
     payment_id = models.CharField(
         verbose_name="ID платежа", blank=True, null=True
     )
 
     payed_at = models.DateTimeField(
         verbose_name="Дата оплаты", blank=True, null=True
+    )
+
+    config_id = models.IntegerField(
+        verbose_name="ID конфига", blank=True, null=True
+    )
+
+    is_reccurent = models.BooleanField(
+        verbose_name="Рекуррентный платёж", default=False
     )
 
     cancelled_at = models.DateTimeField(

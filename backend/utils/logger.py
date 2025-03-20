@@ -30,5 +30,6 @@ def setup_logger(
 
 
 bot_logger = setup_logger("[BOT]")
+api_logger = setup_logger("[API]")
 vpn_logger = setup_logger("[VPN]")
 scheduler_logger = setup_logger("[SCHEDULER]")
