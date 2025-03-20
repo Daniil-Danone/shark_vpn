@@ -68,10 +68,14 @@ def revoke_vpn_client(client_name: str) -> bool:
 
         process.sendline(str(client_index))
         
-        vpn_logger.debug(f"Ожидание подвтерждения")
+        vpn_logger.debug(f"Ожидание подтверждения")
 
         process.expect(f'Confirm {client_name} revocation\? \[y/N\]:')
         process.sendline('y')
+
+        vpn_logger.debug(f"Отправлено y")
+
+        vpn_logger.debug(f"Ожидание закрытия скрипта")
 
         process.expect(pexpect.EOF, timeout=60)
         process.close()
