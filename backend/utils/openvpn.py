@@ -44,10 +44,13 @@ def revoke_vpn_client(client_name: str) -> bool:
 
         vpn_logger.debug(f"Список клиентов")
 
-        process.expect('\d+\) \w+')
+        process.expect('Client:')
         vpn_logger.debug(f"Вывод до expect: {process.before}")
         vpn_logger.debug(f"Вывод после expect: {process.after}")
-        clients_list = process.before.splitlines()[1:]
+
+        clients_output = process.before.strip()
+        clients_list = clients_output.splitlines()
+
         vpn_logger.debug(f"Список клиентов для отзыва: {clients_list}")
 
         client_index = None
