@@ -120,6 +120,8 @@ def configs_keyboard(configs: List[Config], page: int = 0):
             InlineKeyboardButton(text=f"{config.config_name}.ovpn", callback_data=ConfigCallback(action="config", config_id=config.id).pack())
         )
 
+    builder.row(InlineKeyboardButton(text="🎬 Видео-Инструкция", callback_data=ConfigCallback(action="instruction", config_id=0).pack()))
+
     pagination_buttons = []
 
     if page > 0:

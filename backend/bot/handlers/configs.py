@@ -6,10 +6,12 @@ from aiogram.fsm.context import FSMContext
 
 from bot.config import messages
 from bot.config import keyboards
+from bot.config.constants import instruction_video_filename
 from bot.config.states import *
 from bot.config.callbacks import *
 
 from apps.configs.service import ConfigService
+from config import settings
 
 from config.environment import CONFIGS_DIR
 
@@ -70,6 +72,23 @@ async def process_config_callback(
                 sub="✅ Активна" if config.is_sub else "❌ Неактивна"
             )
         )
+
+    elif action == "instruction":
+        video_path = os.path.join(settings.MEDIA_ROOT, instruction_video_filename)
+
+        if not os.path.exists(video_path):
+            return await callback_query.message.answer(f"⚠️ Видео не найдено")
+
+        video_file = FSInputFile(video_path)
+
+        try:
+            await callback_query.message.answer_video(
+                video=video_file,
+                caption="Вот инструкция 🎥"
+            )
+
+        except Exception as e:
+            await callback_query.message.answer(f"❌ Произошла ошибка при отправке видео")
         
 
 def register_handlers_configs(dp: Dispatcher):

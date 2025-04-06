@@ -1,6 +1,7 @@
 .env**
 postgres_data/
 .venv/
+.idea/
 *.config
 *.ovpn
 openvpn/
