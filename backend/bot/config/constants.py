@@ -1,2 +1,2 @@
 
-instruction_video_filename = "SharkVPN.MOV"
+instruction_video_filename = "SharkVPN.mp4"
