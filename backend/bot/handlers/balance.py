@@ -100,7 +100,7 @@ async def process_cash_in_amount_message(
     try:
         payment_id, payment_url = payment.init_payment(
             amount=amount, description="Пополнение баланса SharkVPN",
-            client_fullname=message.from_user.full_name, client_email="it@ledokol.it"
+            client_fullname=message.from_user.full_name, client_email="Andrey6091495@mail.ru"
         )
 
     except RuntimeError as e:

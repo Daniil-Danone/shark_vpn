@@ -56,7 +56,7 @@ async def process_tariff_callback(
         try:
             payment_id, payment_url = payment.init_payment(
                 amount=tariff.price, description=tariff.title,
-                client_fullname=callback_query.from_user.full_name, client_email="it@ledokol.it"
+                client_fullname=callback_query.from_user.full_name, client_email="Andrey6091495@mail.ru"
             )
 
         except RuntimeError as e:
