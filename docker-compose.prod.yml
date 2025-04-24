@@ -59,20 +59,17 @@ services:
     ports:
       - "6379:6379"
 
-  celery:
-    container_name: celery
+  celery_worker:
+    container_name: celery_worker
     build:
       context: ./backend
       dockerfile: Dockerfile
     command: celery -A config.celery_app worker --loglevel=info
-    devices:
-      - /dev/net/tun:/dev/net/tun
     depends_on:
       - backend
       - bot
       - redis
-    networks:
-      - vpn_network
+      - db
     volumes:
       - ./openvpn_configs:/app/openvpn_configs
       - ./openvpn-install.sh:/app/openvpn-install.sh
@@ -80,6 +77,28 @@ services:
       - /var/log/syslog:/app/syslog
     env_file:
       - ./.env.prod
+    networks:
+      - vpn_network
+
+  celery_beat:
+    container_name: celery_beat
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A config.celery_app beat --loglevel=info
+    depends_on:
+      - backend
+      - bot
+      - redis
+    volumes:
+      - ./openvpn_configs:/app/openvpn_configs
+      - ./openvpn-install.sh:/app/openvpn-install.sh
+      - /etc/openvpn:/etc/openvpn
+      - /var/log/syslog:/app/syslog
+    env_file:
+      - ./.env.prod
+    networks:
+      - vpn_network
 
   db:
     image: postgres:16.6-alpine

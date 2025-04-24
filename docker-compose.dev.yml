@@ -52,13 +52,36 @@ services:
     restart: always
     ports:
       - "6379:6379"
+    networks:
+      - vpn_network
 
-  celery:
-    container_name: celery
+  celery_worker:
+    container_name: celery_worker
     build:
       context: ./backend
       dockerfile: Dockerfile
     command: celery -A config.celery_app worker --loglevel=info
+    depends_on:
+      - backend
+      - bot
+      - redis
+      - db
+    volumes:
+      - ./openvpn_configs:/app/openvpn_configs
+      - ./openvpn-install.sh:/app/openvpn-install.sh
+      - /etc/openvpn:/etc/openvpn
+      - /var/log/syslog:/app/syslog
+    env_file:
+      - ./.env
+    networks:
+      - vpn_network
+
+  celery_beat:
+    container_name: celery_beat
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A config.celery_app beat --loglevel=info
     depends_on:
       - backend
       - bot
@@ -70,6 +93,8 @@ services:
       - /var/log/syslog:/app/syslog
     env_file:
       - ./.env
+    networks:
+      - vpn_network
 
   db:
     image: postgres:latest
@@ -78,10 +103,11 @@ services:
       - ./postgres_data:/var/lib/postgresql/data/
     env_file:
       - ./.env.dev
+    command: -p 5435
     networks:
       - vpn_network
     ports:
-      - "5432:5432"
+      - "5435:5435"
     healthcheck:
       test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
       interval: 10s

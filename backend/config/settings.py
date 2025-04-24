@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_ckeditor_5",
     "rest_framework",
     "bot",
     "apps.users",
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
     "apps.referals",
     "apps.operations",
     "apps.faq",
+    "apps.mailing",
 ]
 
 MIDDLEWARE = [
@@ -143,3 +145,29 @@ CELERY_RESULT_BACKEND = f'redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/2'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+
+CELERY_BEAT_SCHEDULE = {
+    'check_uncompleted_mailings': {
+        'task': 'apps.mailing.tasks.check_uncompleted_mailings',
+        'schedule': 60.0,
+    },
+}
+
+CKEDITOR_5_CONFIGS = {
+    'default': {
+        'toolbar': [
+            'bold', 'italic', 'underline', 'strikethrough', 'emoji',
+            'link', 'blockQuote', 'code', 'codeBlock'
+        ],
+        'allowedContent': [
+            'b', 'i', 'u', 's', 'a[href]', 'blockquote', 'code', 'pre'
+        ],
+        'disallowedContent': [
+            'font', 'span', 'div', 'style', 'img', 'table', 'ul', 'ol', 'li',
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'hr', 'strong', 'em',
+            'font-size', 'color', 'background-color', 'line-height'
+        ],
+        'basicEntities': False,
+    },
+}
+
