@@ -6,4 +6,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("operations/", include("apps.operations.urls")),
     path("api/v1/payments/", include("apps.tariffs.urls")),
+    path("ckeditor/", include("django_ckeditor_5.urls")),
 ]

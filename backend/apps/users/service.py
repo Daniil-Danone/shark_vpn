@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from django.db.models import F
 from asgiref.sync import sync_to_async
 
@@ -14,6 +14,12 @@ class UserService:
             return User.objects.get(user_id=user_id)
         except User.DoesNotExist:
             return None
+
+    @staticmethod
+    @sync_to_async
+    def get_users() -> List[User]:
+        return list(User.objects.all())
+
         
     @staticmethod
     @sync_to_async
